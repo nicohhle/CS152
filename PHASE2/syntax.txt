@@ -1,0 +1,58 @@
+Mini-L Rules from Syntax Diagrams
+----------------------------------------
+docs.google.com/document/d/1Z0iaf9l9SqyUAzMUpwpJDesK5IqHursIoSiCChr4AOM/edit
+----------------------------------------
+
+˃ Program → Function Program | 𝜀
+
+˃ Function → function identifier ; A C D
+	   A → beginparams B endparams
+		B → Declaration ; B | 𝜀
+   	   C → beginlocals B endlocals
+   	   D → beginbody Statement ; E endbody
+		E → Statement ; E | 𝜀
+
+˃ Declaration → identifier A : B integer
+	        A → , identifier A | 𝜀
+	        B → array [ number ] of | 𝜀
+
+˃ Statement → A | B | F | G | H | I | K | L | M
+	      A → Var := Expression
+	      B → if Bool-Expr then Statement ; C
+	      	C → Statement ; D endif
+	      	D → E | else E
+		E → Statement ; E | 𝜀
+	      F → while Bool-Expr beginloop Statement ; E endloop
+	      G → do beginloop Statement ; E endloop while Bool-Expr
+	      H → for Var := number ; Bool-Expr ; Var := Expression beginloop Statement ; E endloop
+	      I  → read Var J
+		 J → , Var J | 𝜀
+	      K → write Var J
+	      L → continue
+	      M → return Expression
+
+˃ Bool-Expr → Relation-And-Expr A | Relation-And-Expr
+	      A → or Bool-Expr
+
+˃ Relation-And-Expr → Relation-Expr A | Relation-Expr
+	        A → and Relation-And-Expr
+
+˃ Relation-Expr → not Relation-Expr | A
+             A → Expression Comp Expression | true | false | ( Bool-Expr )
+
+˃ Comp → == | <> | < | > | <= | >= 
+
+˃ Expression → Multiplicative-Expr A | Multiplicative-Expr
+	       A → + Expression | - Expression| 𝜀
+
+˃ Multiplicative-Expr → Term A | Term
+         A →  * Multiplicative-Expr | / Multiplicative-Expr | % Multiplicative-Expr | 𝜀
+
+˃ Term → A | C
+          A → - A | B
+            B → Var | number | ( Expression )
+          C → identifier ( Expression D )
+            D → , Expression D | 𝜀
+
+˃ Var → identifier | identifier [ Expression ]
+
