@@ -1,58 +1,74 @@
-Mini-L Rules from Syntax Diagrams
-----------------------------------------
-docs.google.com/document/d/1Z0iaf9l9SqyUAzMUpwpJDesK5IqHursIoSiCChr4AOM/edit
-----------------------------------------
+prog_start -> prog
 
-˃ Program → Function Program | 𝜀
+prog -> function prog
+            | epsilon
 
-˃ Function → function identifier ; A C D
-	   A → beginparams B endparams
-		B → Declaration ; B | 𝜀
-   	   C → beginlocals B endlocals
-   	   D → beginbody Statement ; E endbody
-		E → Statement ; E | 𝜀
+function -> FUNCTION identifier SEMICOLON BEGIN_PARAMS declarationloop END_PARAMS BEGIN_LOCALS declarationloop END_LOCALS BEGIN_BODY statementloop END_BODY
 
-˃ Declaration → identifier A : B integer
-	        A → , identifier A | 𝜀
-	        B → array [ number ] of | 𝜀
+declaration -> identifierloop COLON INTEGER
+            | identifierloop COLON ARRAY L_SQUARE_BRACKET NUMBER R_SQUARE_BRACKET OF INTEGER
 
-˃ Statement → A | B | F | G | H | I | K | L | M
-	      A → Var := Expression
-	      B → if Bool-Expr then Statement ; C
-	      	C → Statement ; D endif
-	      	D → E | else E
-		E → Statement ; E | 𝜀
-	      F → while Bool-Expr beginloop Statement ; E endloop
-	      G → do beginloop Statement ; E endloop while Bool-Expr
-	      H → for Var := number ; Bool-Expr ; Var := Expression beginloop Statement ; E endloop
-	      I  → read Var J
-		 J → , Var J | 𝜀
-	      K → write Var J
-	      L → continue
-	      M → return Expression
+declarationloop -> declaration SEMICOLON declarationloop
+            | epsilon
 
-˃ Bool-Expr → Relation-And-Expr A | Relation-And-Expr
-	      A → or Bool-Expr
+statement -> var ASSIGN expression
+            | IF bool_exp THEN statementloop ENDIF
+            | IF bool_exp THEN statementloop ELSE statementloop ENDIF
+            | WHILE bool_exp BEGINLOOP statementloop ENDLOOP
+            | DO BEGINLOOP statementloop ENDLOOP WHILE bool_exp
+            | FOR var ASSIGN NUMBER SEMICOLON bool_exp SEMICOLON var ASSIGN expression BEGINLOOP statementloop ENDLOOP
+            | READ varloop
+            | WRITE varloop
+            | CONTINUE
+            | RETURN expression
 
-˃ Relation-And-Expr → Relation-Expr A | Relation-Expr
-	        A → and Relation-And-Expr
+statementloop -> statement SEMICOLON statementloop
+            | epsilon
 
-˃ Relation-Expr → not Relation-Expr | A
-             A → Expression Comp Expression | true | false | ( Bool-Expr )
+bool_exp -> relation_and_exp OR relation_and_exp
+            | relation_and_exp
 
-˃ Comp → == | <> | < | > | <= | >= 
+relation_and_exp -> relation_exp AND relation_exp
+            | relation_exp
 
-˃ Expression → Multiplicative-Expr A | Multiplicative-Expr
-	       A → + Expression | - Expression| 𝜀
+relation_exp -> notloop expression comp expression
+            | TRUE
+            | FALSE
+            | L_PAREN bool_exp R_PAREN
 
-˃ Multiplicative-Expr → Term A | Term
-         A →  * Multiplicative-Expr | / Multiplicative-Expr | % Multiplicative-Expr | 𝜀
+notloop -> NOT
+            | epsilon
 
-˃ Term → A | C
-          A → - A | B
-            B → Var | number | ( Expression )
-          C → identifier ( Expression D )
-            D → , Expression D | 𝜀
+comp ->  EQ | NEQ | LT | GT | LTE | GTE
 
-˃ Var → identifier | identifier [ Expression ]
+expression -> multiplicative_expression
+            | multiplicative_expression ADD expression
+            | multiplicative_expression SUB expression
 
+multiplicative_expression -> term
+            | term MULT multiplicative_expression
+            | term DIV multiplicative_expression
+            | term MOD multiplicative_expression
+
+term -> SUB term_num
+            | term_num
+            | identifier L_PAREN expressionloop R_PAREN
+
+term_num -> var
+            | number
+            | L_PAREN expression R_PAREN
+
+number-> NUMBER
+
+expressionloop-> expression COMMA expressionloop
+            | expression
+            | epsilon
+
+varloop -> var | var COMMA varloop
+
+var -> identifier L_SQUARE_BRACKET expression R_SQUARE_BRACKET
+            | identifier
+
+identifier -> IDENT
+
+identifierloop -> identifier COMMA identifierloop | identifier
