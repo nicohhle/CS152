@@ -7,7 +7,7 @@
  extern int currLine;
  extern int currPos;
  extern char *yytext;
- extern FILE *yyin;
+/* extern FILE *yyin;*/
 %}
 
 %union{
@@ -104,7 +104,7 @@ comp:       EQ { printf("comp -> EQ\n"); }
 
 expression: multiplicative_expression { printf("expression -> multiplicative_expression\n"); }
             | multiplicative_expression ADD expression { printf("expression -> multiplicative_expression ADD expression\n"); }
-            | multiplicative_expression SUB expression { printf("expression -> multiplicative_expression SUB expression\n")}
+            | multiplicative_expression SUB expression { printf("expression -> multiplicative_expression SUB expression\n"); }
             ;
 
 multiplicative_expression:  term { printf("multiplicative_expression -> term\n"); }
