@@ -25,15 +25,21 @@
 %token BEGIN_PARAMS END_PARAMS BEGIN_LOCALS END_LOCALS BEGIN_BODY END_BODY
 %token INTEGER ARRAY OF IF THEN ENDIF ELSE WHILE DO FOR BEGINLOOP ENDLOOP CONTINUE
 %token READ WRITE
-%token AND OR TRUE FALSE
+%token TRUE FALSE
 %token RETURN
 
-%right NOT
+%token SEMICOLON COLON COMMA 
+%token L_PAREN R_PAREN 
+%token L_SQUARE_BRACKET R_SQUARE_BRACKET
 
-%left SUB ADD MULT DIV MOD ASSIGN
-%left EQ NEQ LT GT LTE GTE
-
-%token SEMICOLON COLON COMMA L_PAREN R_PAREN L_SQUARE_BRACKET R_SQUARE_BRACKET
+%left MULT DIV MOD 
+%left SUB ADD
+%left LT LTE GT GTE 
+%left EQ NEQ 
+%token NOT
+%token AND
+%token OR
+%token ASSIGN
 
 %% 
 prog_start:		prog { printf("prog_start -> prog\n"); }
@@ -54,7 +60,7 @@ declarationloop:  declaration SEMICOLON declarationloop { printf("declarationloo
             | { printf("declarationloop -> epsilon\n"); }
             ;
 
-statement:  var ASSIGN expression { printf("statement -> var ASSIGN expressionn\n"); }
+statement:  var ASSIGN expression { printf("statement -> var ASSIGN expression\n"); }
             | IF bool_exp THEN statementloop ENDIF { printf("statement -> IF bool_exp THEN statementloop ENDIF\n"); }
             | IF bool_exp THEN statementloop ELSE statementloop ENDIF { printf("statement -> IF bool_exp THEN statementloop ELSE statementloop ENDIF\n"); }
             | WHILE bool_exp BEGINLOOP statementloop ENDLOOP { printf("statement -> WHILE bool_exp BEGINLOOP statementloop ENDLOOP\n"); }

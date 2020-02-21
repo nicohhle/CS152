@@ -1,6 +1,6 @@
 State 31 conflicts: 1 shift/reduce
 State 32 conflicts: 1 shift/reduce
-State 47 conflicts: 1 shift/reduce
+State 46 conflicts: 1 shift/reduce
 State 75 conflicts: 1 shift/reduce
 State 76 conflicts: 1 shift/reduce
 State 121 conflicts: 1 shift/reduce
@@ -122,31 +122,31 @@ ENDLOOP (278) 12 13 14
 CONTINUE (279) 17
 READ (280) 15
 WRITE (281) 16
-AND (282) 23
-OR (283) 21
-TRUE (284) 26
-FALSE (285) 27
-RETURN (286) 18
-NOT (287) 29
-ASSIGN (288) 9 14
-MOD (289) 43
-DIV (290) 42
-MULT (291) 41
-ADD (292) 38
-SUB (293) 39 44
-GTE (294) 36
-LTE (295) 35
-GT (296) 34
-LT (297) 33
-NEQ (298) 32
-EQ (299) 31
-SEMICOLON (300) 4 7 14 19 20
-COLON (301) 5 6
-COMMA (302) 51 55 59
-L_PAREN (303) 28 46 49
-R_PAREN (304) 28 46 49
-L_SQUARE_BRACKET (305) 6 52
-R_SQUARE_BRACKET (306) 6 52
+TRUE (282) 26
+FALSE (283) 27
+RETURN (284) 18
+SEMICOLON (285) 4 7 14 19 20
+COLON (286) 5 6
+COMMA (287) 51 55 59
+L_PAREN (288) 28 46 49
+R_PAREN (289) 28 46 49
+L_SQUARE_BRACKET (290) 6 52
+R_SQUARE_BRACKET (291) 6 52
+MOD (292) 43
+DIV (293) 42
+MULT (294) 41
+ADD (295) 38
+SUB (296) 39 44
+GTE (297) 36
+GT (298) 34
+LTE (299) 35
+LT (300) 33
+NEQ (301) 32
+EQ (302) 31
+NOT (303) 29
+AND (304) 23
+OR (305) 21
+ASSIGN (306) 9 14
 
 
 Nonterminals, with rules where they appear
@@ -481,8 +481,8 @@ state 31
 
     TRUE     shift, and go to state 44
     FALSE    shift, and go to state 45
-    NOT      shift, and go to state 46
-    L_PAREN  shift, and go to state 47
+    L_PAREN  shift, and go to state 46
+    NOT      shift, and go to state 47
 
     L_PAREN   [reduce using rule 30 (notloop)]
     $default  reduce using rule 30 (notloop)
@@ -499,8 +499,8 @@ state 32
 
     TRUE     shift, and go to state 44
     FALSE    shift, and go to state 45
-    NOT      shift, and go to state 46
-    L_PAREN  shift, and go to state 47
+    L_PAREN  shift, and go to state 46
+    NOT      shift, and go to state 47
 
     L_PAREN   [reduce using rule 30 (notloop)]
     $default  reduce using rule 30 (notloop)
@@ -563,8 +563,8 @@ state 38
 
     NUMBER   shift, and go to state 27
     IDENT    shift, and go to state 5
-    SUB      shift, and go to state 58
-    L_PAREN  shift, and go to state 59
+    L_PAREN  shift, and go to state 58
+    SUB      shift, and go to state 59
 
     expression                 go to state 60
     multiplicative_expression  go to state 61
@@ -630,31 +630,31 @@ state 45
 
 state 46
 
-   29 notloop: NOT . notloop
-
-    NOT  shift, and go to state 46
-
-    $default  reduce using rule 30 (notloop)
-
-    notloop  go to state 72
-
-
-state 47
-
    28 relation_exp: L_PAREN . bool_exp R_PAREN
 
     TRUE     shift, and go to state 44
     FALSE    shift, and go to state 45
-    NOT      shift, and go to state 46
-    L_PAREN  shift, and go to state 47
+    L_PAREN  shift, and go to state 46
+    NOT      shift, and go to state 47
 
     L_PAREN   [reduce using rule 30 (notloop)]
     $default  reduce using rule 30 (notloop)
 
-    bool_exp          go to state 73
+    bool_exp          go to state 72
     relation_and_exp  go to state 49
     relation_exp      go to state 50
     notloop           go to state 51
+
+
+state 47
+
+   29 notloop: NOT . notloop
+
+    NOT  shift, and go to state 47
+
+    $default  reduce using rule 30 (notloop)
+
+    notloop  go to state 73
 
 
 state 48
@@ -691,8 +691,8 @@ state 51
 
     NUMBER   shift, and go to state 27
     IDENT    shift, and go to state 5
-    SUB      shift, and go to state 58
-    L_PAREN  shift, and go to state 59
+    L_PAREN  shift, and go to state 58
+    SUB      shift, and go to state 59
 
     expression                 go to state 77
     multiplicative_expression  go to state 61
@@ -763,34 +763,34 @@ state 57
 
 state 58
 
-   44 term: SUB . term_num
-
-    NUMBER   shift, and go to state 27
-    IDENT    shift, and go to state 5
-    L_PAREN  shift, and go to state 59
-
-    term_num    go to state 82
-    var         go to state 64
-    number      go to state 65
-    identifier  go to state 42
-
-
-state 59
-
    49 term_num: L_PAREN . expression R_PAREN
 
     NUMBER   shift, and go to state 27
     IDENT    shift, and go to state 5
-    SUB      shift, and go to state 58
-    L_PAREN  shift, and go to state 59
+    L_PAREN  shift, and go to state 58
+    SUB      shift, and go to state 59
 
-    expression                 go to state 83
+    expression                 go to state 82
     multiplicative_expression  go to state 61
     term                       go to state 62
     term_num                   go to state 63
     var                        go to state 64
     number                     go to state 65
     identifier                 go to state 66
+
+
+state 59
+
+   44 term: SUB . term_num
+
+    NUMBER   shift, and go to state 27
+    IDENT    shift, and go to state 5
+    L_PAREN  shift, and go to state 58
+
+    term_num    go to state 83
+    var         go to state 64
+    number      go to state 65
+    identifier  go to state 42
 
 
 state 60
@@ -895,8 +895,8 @@ state 69
 
     NUMBER   shift, and go to state 27
     IDENT    shift, and go to state 5
-    SUB      shift, and go to state 58
-    L_PAREN  shift, and go to state 59
+    L_PAREN  shift, and go to state 58
+    SUB      shift, and go to state 59
 
     expression                 go to state 91
     multiplicative_expression  go to state 61
@@ -913,8 +913,8 @@ state 70
 
     NUMBER   shift, and go to state 27
     IDENT    shift, and go to state 5
-    SUB      shift, and go to state 58
-    L_PAREN  shift, and go to state 59
+    L_PAREN  shift, and go to state 58
+    SUB      shift, and go to state 59
 
     expression                 go to state 92
     multiplicative_expression  go to state 61
@@ -934,16 +934,16 @@ state 71
 
 state 72
 
-   29 notloop: NOT notloop .
+   28 relation_exp: L_PAREN bool_exp . R_PAREN
 
-    $default  reduce using rule 29 (notloop)
+    R_PAREN  shift, and go to state 93
 
 
 state 73
 
-   28 relation_exp: L_PAREN bool_exp . R_PAREN
+   29 notloop: NOT notloop .
 
-    R_PAREN  shift, and go to state 93
+    $default  reduce using rule 29 (notloop)
 
 
 state 74
@@ -973,8 +973,8 @@ state 75
 
     TRUE     shift, and go to state 44
     FALSE    shift, and go to state 45
-    NOT      shift, and go to state 46
-    L_PAREN  shift, and go to state 47
+    L_PAREN  shift, and go to state 46
+    NOT      shift, and go to state 47
 
     L_PAREN   [reduce using rule 30 (notloop)]
     $default  reduce using rule 30 (notloop)
@@ -991,8 +991,8 @@ state 76
 
     TRUE     shift, and go to state 44
     FALSE    shift, and go to state 45
-    NOT      shift, and go to state 46
-    L_PAREN  shift, and go to state 47
+    L_PAREN  shift, and go to state 46
+    NOT      shift, and go to state 47
 
     L_PAREN   [reduce using rule 30 (notloop)]
     $default  reduce using rule 30 (notloop)
@@ -1007,8 +1007,8 @@ state 77
    25 relation_exp: notloop expression . comp expression
 
     GTE  shift, and go to state 97
-    LTE  shift, and go to state 98
-    GT   shift, and go to state 99
+    GT   shift, and go to state 98
+    LTE  shift, and go to state 99
     LT   shift, and go to state 100
     NEQ  shift, and go to state 101
     EQ   shift, and go to state 102
@@ -1065,16 +1065,16 @@ state 81
 
 state 82
 
-   44 term: SUB term_num .
+   49 term_num: L_PAREN expression . R_PAREN
 
-    $default  reduce using rule 44 (term)
+    R_PAREN  shift, and go to state 108
 
 
 state 83
 
-   49 term_num: L_PAREN expression . R_PAREN
+   44 term: SUB term_num .
 
-    R_PAREN  shift, and go to state 108
+    $default  reduce using rule 44 (term)
 
 
 state 84
@@ -1083,8 +1083,8 @@ state 84
 
     NUMBER   shift, and go to state 27
     IDENT    shift, and go to state 5
-    SUB      shift, and go to state 58
-    L_PAREN  shift, and go to state 59
+    L_PAREN  shift, and go to state 58
+    SUB      shift, and go to state 59
 
     expression                 go to state 109
     multiplicative_expression  go to state 61
@@ -1101,8 +1101,8 @@ state 85
 
     NUMBER   shift, and go to state 27
     IDENT    shift, and go to state 5
-    SUB      shift, and go to state 58
-    L_PAREN  shift, and go to state 59
+    L_PAREN  shift, and go to state 58
+    SUB      shift, and go to state 59
 
     expression                 go to state 110
     multiplicative_expression  go to state 61
@@ -1119,8 +1119,8 @@ state 86
 
     NUMBER   shift, and go to state 27
     IDENT    shift, and go to state 5
-    SUB      shift, and go to state 58
-    L_PAREN  shift, and go to state 59
+    L_PAREN  shift, and go to state 58
+    SUB      shift, and go to state 59
 
     multiplicative_expression  go to state 111
     term                       go to state 62
@@ -1136,8 +1136,8 @@ state 87
 
     NUMBER   shift, and go to state 27
     IDENT    shift, and go to state 5
-    SUB      shift, and go to state 58
-    L_PAREN  shift, and go to state 59
+    L_PAREN  shift, and go to state 58
+    SUB      shift, and go to state 59
 
     multiplicative_expression  go to state 112
     term                       go to state 62
@@ -1153,8 +1153,8 @@ state 88
 
     NUMBER   shift, and go to state 27
     IDENT    shift, and go to state 5
-    SUB      shift, and go to state 58
-    L_PAREN  shift, and go to state 59
+    L_PAREN  shift, and go to state 58
+    SUB      shift, and go to state 59
 
     multiplicative_expression  go to state 113
     term                       go to state 62
@@ -1170,8 +1170,8 @@ state 89
 
     NUMBER   shift, and go to state 27
     IDENT    shift, and go to state 5
-    SUB      shift, and go to state 58
-    L_PAREN  shift, and go to state 59
+    L_PAREN  shift, and go to state 58
+    SUB      shift, and go to state 59
 
     $default  reduce using rule 57 (expressionloop)
 
@@ -1245,16 +1245,16 @@ state 97
 
 state 98
 
-   35 comp: LTE .
+   34 comp: GT .
 
-    $default  reduce using rule 35 (comp)
+    $default  reduce using rule 34 (comp)
 
 
 state 99
 
-   34 comp: GT .
+   35 comp: LTE .
 
-    $default  reduce using rule 34 (comp)
+    $default  reduce using rule 35 (comp)
 
 
 state 100
@@ -1284,8 +1284,8 @@ state 103
 
     NUMBER   shift, and go to state 27
     IDENT    shift, and go to state 5
-    SUB      shift, and go to state 58
-    L_PAREN  shift, and go to state 59
+    L_PAREN  shift, and go to state 58
+    SUB      shift, and go to state 59
 
     expression                 go to state 119
     multiplicative_expression  go to state 61
@@ -1437,8 +1437,8 @@ state 121
 
     TRUE     shift, and go to state 44
     FALSE    shift, and go to state 45
-    NOT      shift, and go to state 46
-    L_PAREN  shift, and go to state 47
+    L_PAREN  shift, and go to state 46
+    NOT      shift, and go to state 47
 
     L_PAREN   [reduce using rule 30 (notloop)]
     $default  reduce using rule 30 (notloop)
@@ -1455,8 +1455,8 @@ state 122
 
     TRUE     shift, and go to state 44
     FALSE    shift, and go to state 45
-    NOT      shift, and go to state 46
-    L_PAREN  shift, and go to state 47
+    L_PAREN  shift, and go to state 46
+    NOT      shift, and go to state 47
 
     L_PAREN   [reduce using rule 30 (notloop)]
     $default  reduce using rule 30 (notloop)
@@ -1473,8 +1473,8 @@ state 123
 
     NUMBER   shift, and go to state 27
     IDENT    shift, and go to state 5
-    SUB      shift, and go to state 58
-    L_PAREN  shift, and go to state 59
+    L_PAREN  shift, and go to state 58
+    SUB      shift, and go to state 59
 
     $default  reduce using rule 57 (expressionloop)
 
@@ -1553,8 +1553,8 @@ state 132
 
     NUMBER   shift, and go to state 27
     IDENT    shift, and go to state 5
-    SUB      shift, and go to state 58
-    L_PAREN  shift, and go to state 59
+    L_PAREN  shift, and go to state 58
+    SUB      shift, and go to state 59
 
     expression                 go to state 133
     multiplicative_expression  go to state 61

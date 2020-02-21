@@ -63,31 +63,31 @@
      CONTINUE = 279,
      READ = 280,
      WRITE = 281,
-     AND = 282,
-     OR = 283,
-     TRUE = 284,
-     FALSE = 285,
-     RETURN = 286,
-     NOT = 287,
-     ASSIGN = 288,
-     MOD = 289,
-     DIV = 290,
-     MULT = 291,
-     ADD = 292,
-     SUB = 293,
-     GTE = 294,
-     LTE = 295,
-     GT = 296,
-     LT = 297,
-     NEQ = 298,
-     EQ = 299,
-     SEMICOLON = 300,
-     COLON = 301,
-     COMMA = 302,
-     L_PAREN = 303,
-     R_PAREN = 304,
-     L_SQUARE_BRACKET = 305,
-     R_SQUARE_BRACKET = 306
+     TRUE = 282,
+     FALSE = 283,
+     RETURN = 284,
+     SEMICOLON = 285,
+     COLON = 286,
+     COMMA = 287,
+     L_PAREN = 288,
+     R_PAREN = 289,
+     L_SQUARE_BRACKET = 290,
+     R_SQUARE_BRACKET = 291,
+     MOD = 292,
+     DIV = 293,
+     MULT = 294,
+     ADD = 295,
+     SUB = 296,
+     GTE = 297,
+     GT = 298,
+     LTE = 299,
+     LT = 300,
+     NEQ = 301,
+     EQ = 302,
+     NOT = 303,
+     AND = 304,
+     OR = 305,
+     ASSIGN = 306
    };
 #endif
 /* Tokens.  */
@@ -115,31 +115,31 @@
 #define CONTINUE 279
 #define READ 280
 #define WRITE 281
-#define AND 282
-#define OR 283
-#define TRUE 284
-#define FALSE 285
-#define RETURN 286
-#define NOT 287
-#define ASSIGN 288
-#define MOD 289
-#define DIV 290
-#define MULT 291
-#define ADD 292
-#define SUB 293
-#define GTE 294
-#define LTE 295
-#define GT 296
-#define LT 297
-#define NEQ 298
-#define EQ 299
-#define SEMICOLON 300
-#define COLON 301
-#define COMMA 302
-#define L_PAREN 303
-#define R_PAREN 304
-#define L_SQUARE_BRACKET 305
-#define R_SQUARE_BRACKET 306
+#define TRUE 282
+#define FALSE 283
+#define RETURN 284
+#define SEMICOLON 285
+#define COLON 286
+#define COMMA 287
+#define L_PAREN 288
+#define R_PAREN 289
+#define L_SQUARE_BRACKET 290
+#define R_SQUARE_BRACKET 291
+#define MOD 292
+#define DIV 293
+#define MULT 294
+#define ADD 295
+#define SUB 296
+#define GTE 297
+#define GT 298
+#define LTE 299
+#define LT 300
+#define NEQ 301
+#define EQ 302
+#define NOT 303
+#define AND 304
+#define OR 305
+#define ASSIGN 306
 
 
 
