@@ -1,8 +1,5 @@
-parse: $(p).lex
-	flex $(p).lex
-	gcc lex.yy.c -lfl
-	rm -f lex.yy.c
-
-test:
-	cat $(t).min | ./a.out > output
-	diff output $(t).tokens
+parse: phase2.lex
+	flex phase2.lex
+	bison -v -d --file-prefix=y phase2.y
+	gcc -o phase2 y.tab.c lex.yy.c -ll
+	rm -f lex.yy.c y.tab.h y.tab.c y.output

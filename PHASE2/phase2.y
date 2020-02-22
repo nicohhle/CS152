@@ -3,19 +3,14 @@
  #define YY_NO_UNPUT
  #include <stdio.h>
  #include <stdlib.h>
- void yyerror(const char *msg);
- extern int currLine;
- extern int currPos;
- extern char *yytext;
-/* extern FILE *yyin;*/
+ void yyerror(char *s);
 %}
 
 %union{
   int num;
-  char *ident;
+  char* ident;
 }
 
-%error-verbose
 %start prog_start
 
 %token <num> NUMBER
@@ -148,13 +143,11 @@ identifierloop:   identifier COMMA identifierloop { printf("identifierloop -> id
 
 %%  
 
-void yyerror(const char *msg) {
-
-  printf("%s: parsing error at line: %d, column: %d\nUnpexpected symbol %s encountered.\n", msg, currLine, currPos, yytext);
-
+void yyerror(char* s)
+{
+  extern int yylineno;	// defined and maintained in lex.c
+  extern char *yytext;	// defined and maintained in lex.c
+  
+  printf("%s on line %d at symbol \"%s\"\n", s, yylineno, yytext);
   exit(1);
-  //  printf("** Line %d, position %d: %s\n", currLine, currPos, msg);
 }
-
-
-

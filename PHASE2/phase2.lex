@@ -84,22 +84,12 @@ BADVAR_UND	[a-zA-Z]+[a-zA-Z_0-9]*_+
 
 %%
 
+
+int yyparse();
+
 int main(int argc, char ** argv)
 {
-   if (argc >= 2) 
-   {
-	yyin = fopen(argv[1], "r");
-	if (yyin == NULL)
-	{
-		yyin = stdin;
-	}
-   }
-   else 
-   {
-	yyin = stdin;
-   }
-
    yyparse();
+
+   return 0;
 }
-
-
