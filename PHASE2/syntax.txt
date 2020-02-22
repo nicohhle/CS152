@@ -50,13 +50,13 @@ multiplicative_expression -> term
             | term DIV multiplicative_expression
             | term MOD multiplicative_expression
 
-term -> SUB term_num
-            | term_num
-            | identifier L_PAREN expressionloop R_PAREN
-
-term_num -> var
-            | number
-            | L_PAREN expression R_PAREN
+term -> SUB var
+        | SUB number
+        | SUB L_PAREN expression R_PAREN
+        | var
+        | number
+        | L_PAREN expression R_PAREN
+        | identifier L_PAREN expressionloop R_PAREN
 
 number-> NUMBER
 

@@ -11,7 +11,7 @@
   char* ident;
 }
 
-%start prog_start
+%start program
 
 %token <num> NUMBER
 %token <ident> IDENT
@@ -27,21 +27,25 @@
 %token L_PAREN R_PAREN 
 %token L_SQUARE_BRACKET R_SQUARE_BRACKET
 
-%left MULT DIV MOD 
-%left SUB ADD
-%left LT LTE GT GTE 
-%left EQ NEQ 
-%token NOT
-%token AND
-%token OR
-%token ASSIGN
+%left  ASSIGN
+%left  EQ
+%left  NEQ
+%left  LT
+%left  LTE
+%left  GT
+%left  GTE
+%left  ADD
+%left  SUB
+%left  MULT
+%left  DIV
+%left  MOD
+%left  AND
+%left  OR
+%right  NOT
 
 %% 
-prog_start:		prog { printf("prog_start -> prog\n"); }
-        			;
-
-prog:     function prog { printf("prog -> function prog\n"); }
-          | { printf("prog -> epsilon\n"); }
+program:     function program { printf("program -> function program\n"); }
+          | { printf("program -> epsilon\n"); }
 			    ;
 
 function:   FUNCTION identifier SEMICOLON BEGIN_PARAMS declarationloop END_PARAMS BEGIN_LOCALS declarationloop END_LOCALS BEGIN_BODY statementloop END_BODY { printf("function -> FUNCTION identifier SEMICOLON BEGIN_PARAMS declarationloop END_PARAMS BEGIN_LOCALS declarationloop END_LOCALS BEGIN_BODY statementloop END_BODY\n"); }
@@ -75,18 +79,18 @@ bool_exp:   relation_and_exp OR bool_exp { printf("bool_exp -> relation_and_exp 
             | relation_and_exp { printf("bool_exp -> relation_and_exp\n"); }
             ;
 
-relation_and_exp:   relation_exp AND relation_and_exp { printf("relation_and_exp -> relation_exp AND relation_exp\n"); }
-                    | relation_exp { printf("relation_and_exp -> relation_exp\n"); }
+relation_and_exp:   notloop AND relation_and_exp { printf("relation_and_exp -> notloop AND relation_and_exp\n"); }
+                    | notloop { printf("relation_and_exp -> notloop\n"); }
                     ;
 
-relation_exp:   notloop expression comp expression { printf("relation_exp -> notloop expression comp expression\n"); }
+relation_exp:   expression comp expression { printf("relation_exp -> expression comp expression\n"); }
                 | TRUE { printf("relation_exp -> TRUE"); }
                 | FALSE { printf("relation_exp -> FALSE"); }
                 | L_PAREN bool_exp R_PAREN { printf("relation_exp -> L_PAREN bool_exp R_PAREN\n"); }
                 ;
 
 notloop:    NOT notloop { printf("notloop -> NOT notloop\n"); }
-            | { printf("notloop -> epsilon\n"); }
+            | relation_exp { printf("notloop -> relation_exp\n"); }
             ;
 
 comp:       EQ { printf("comp -> EQ\n"); }
@@ -103,20 +107,19 @@ expression: multiplicative_expression { printf("expression -> multiplicative_exp
             ;
 
 multiplicative_expression:  term { printf("multiplicative_expression -> term\n"); }
-                            | term MULT multiplicative_expression {("multiplicative_expression -> term MULT multiplicative_expression\n"); }
-                            | term DIV multiplicative_expression {("multiplicative_expression -> term DIV multiplicative_expression\n"); }
-                            | term MOD multiplicative_expression {("multiplicative_expression -> term MOD multiplicative_expression\n"); }
+                            | term MULT multiplicative_expression { printf("multiplicative_expression -> term MULT multiplicative_expression\n"); }
+                            | term DIV multiplicative_expression { printf("multiplicative_expression -> term DIV multiplicative_expression\n"); }
+                            | term MOD multiplicative_expression { printf("multiplicative_expression -> term MOD multiplicative_expression\n"); }
                             ;
 
-term:   SUB term_num { printf("term -> SUB term_num\n"); }
-        | term_num { printf("term -> term_num\n"); }
+term:   SUB var { printf("term -> SUB var\n"); }
+        | SUB number { printf("term -> SUB number\n"); }
+        | SUB L_PAREN expression R_PAREN { printf("term -> SUB L_PAREN expression R_PAREN\n"); }
+        | var { printf("term -> var\n"); }
+        | number { printf("term -> number\n"); }
+        | L_PAREN expression R_PAREN { printf("term -> L_PAREN expression R_PAREN\n"); }
         | identifier L_PAREN expressionloop R_PAREN { printf("term -> identifier L_PAREN expressionloop R_PAREN\n"); }
         ;
-
-term_num:   var { printf("term_num -> var\n"); }
-            | number { printf("term_num -> number\n"); }
-            | L_PAREN expression R_PAREN { printf("term_num -> L_PAREN expression R_PAREN\n"); }
-            ;
 
 varloop:  var { printf("varloop -> var\n"); }
           | var COMMA varloop { printf("varloop -> var COMMA varloop\n"); }
