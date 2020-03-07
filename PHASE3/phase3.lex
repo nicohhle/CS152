@@ -4,7 +4,8 @@
 
 %{   
    #include <stdio.h>
-   #include "y.tab.h"
+   #include <string>
+   #include "phase3.tab.h"
    
    int currLine = 1, currPos = 1;
 %}
@@ -84,12 +85,13 @@ BADVAR_UND	[a-zA-Z]+[a-zA-Z_0-9]*_+
 
 %%
 
-
 int yyparse();
+int yylex();
 
 int main(int argc, char ** argv)
 {
-   yy::parser parser ();
-   int res = parser.parse ();
-   return res;
+  //yylex();
+  yyparse();
+  
+  return 0;
 }

@@ -1,4 +1,3 @@
-/* Phase 2 */ 
 %skeleton "lalr1.cc" /* -*- C++ -*- */
 %require "3.0.4"
 %defines
@@ -7,27 +6,24 @@
 %define api.value.type variant
 %define parse.assert
 
-%{	
- #define YY_NO_UNPUT
- #include <stdio.h>
- #include <stdlib.h>
- #include <string>
- #include <iostream>
- #include <sstream>
- void yyerror(char *s);
-%}
+%code requires {
+  # include <string>
+  class driver;
+}
 
-%code{
-  struct statement {
-    std::string code;
-  };
+// The parsing context.
+%param { driver& drv }
 
-  struct expression {
-    std::string code;
-    std::string result_id;
-  };
-%}
+%locations
 
+%define parse.trace
+%define parse.error verbose
+
+%code {
+# include "driver.hh"
+}
+
+%define api.token.prefix {TOK_}
 %start program
 
 %token <int> NUMBER
@@ -64,11 +60,8 @@
 %left  OR
 %right  NOT
 
-%{
-  int yylex();
-%}
+%%
 
-%% 
 program:    function program { 
               std::ostringstream oss;
 
@@ -79,7 +72,11 @@ program:    function program {
           | { printf("program -> epsilon\n"); }
 			    ;
 
-function:   FUNCTION identifier SEMICOLON BEGIN_PARAMS declarationloop END_PARAMS BEGIN_LOCALS declarationloop END_LOCALS BEGIN_BODY statementloop END_BODY { printf("function -> FUNCTION identifier SEMICOLON BEGIN_PARAMS declarationloop END_PARAMS BEGIN_LOCALS declarationloop END_LOCALS BEGIN_BODY statementloop END_BODY\n"); }
+function:   FUNCTION identifier SEMICOLON BEGIN_PARAMS declarationloop END_PARAMS BEGIN_LOCALS declarationloop END_LOCALS BEGIN_BODY statementloop END_BODY { 
+            std::ostringstream oss;
+            
+            oss << $2
+ }
 
             ;
 
@@ -176,15 +173,10 @@ identifierloop:   identifier COMMA identifierloop { printf("identifierloop -> id
                   | identifier { printf("identifierloop -> identifier\n"); }
                   ;
 
-%%  
+%%
 
-void yyerror(char* s)
+void
+yy::parser::error (const location_type& l, const std::string& m)
 {
-  // extern int yylineno;	// defined and maintained in lex.c
-  extern char *yytext;	// defined and maintained in lex.c
-  extern char currPos;
-  extern int currLine;
-  
-  printf("%s on line %d at character %d at symbol \"%s\"\n", s, currLine, currPos, yytext);
-  exit(1);
+  std::cerr << l << ": " << m << '\n';
 }
