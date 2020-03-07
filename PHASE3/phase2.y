@@ -22,6 +22,17 @@
 // # include "driver.hh"
 // }
 
+%code{
+  struct Statement {
+    std::string code;
+  };
+
+  struct Expression {
+    std::string code;
+    std::string result_id;
+  };
+%}
+
 %define api.token.prefix {TOK_}
 %start program
 
@@ -35,8 +46,8 @@
 %token TRUE FALSE
 %token RETURN
 
-%type <statement> program function declaration declarationloop statement statementloop term varloop var number identifier identifierloop
-%type <expression> bool_exp relation_and_exp relation_exp notloop comp expression multiplicative_expression expressionloop
+%type <Statement> program function declaration declarationloop statement statementloop term varloop var number identifier identifierloop
+%type <Expression> bool_exp relation_and_exp relation_exp notloop comp expression multiplicative_expression expressionloop
 
 
 %token SEMICOLON COLON COMMA 
@@ -112,7 +123,20 @@ declarationloop:  declaration SEMICOLON declarationloop {
             ;
 
 statement:  var ASSIGN expression { printf("statement -> var ASSIGN expression\n"); }
-            | IF bool_exp THEN statementloop ENDIF { printf("statement -> IF bool_exp THEN statementloop ENDIF\n"); }
+            | IF bool_exp THEN statementloop ENDIF { 
+                std::string l = new_label();
+                std::string m = new_label();
+                std::ostringstream oss;
+
+                OSS << $2.code;
+                OSS << "?:= " << l << ", " << $2.result_id << std::endl;
+                OSS << ":= m" << std::endl;
+                OSS << ":= " << l << std::endl;
+                OSS << $4.code;
+                OSS << ": " << m << std::endl;
+
+                $$.code = oss.str();
+             }
             | IF bool_exp THEN statementloop ELSE statementloop ENDIF { printf("statement -> IF bool_exp THEN statementloop ELSE statementloop ENDIF\n"); }
             | WHILE bool_exp BEGINLOOP statementloop ENDLOOP { printf("statement -> WHILE bool_exp BEGINLOOP statementloop ENDLOOP\n"); }
             | DO BEGINLOOP statementloop ENDLOOP WHILE bool_exp { printf("statement -> DO BEGINLOOP statementloop ENDLOOP WHILE bool_exp\n"); }
