@@ -126,9 +126,16 @@ statement:      var ASSIGN expression
                 }
                 | IF bool_expr THEN stateInnerOne ENDIF
                 {
-                  string l = new_label();
-                  string m = new_label();
-                  ostringstream oss;
+                  // string l = new_label();
+                  // string m = new_label();
+                  // ostringstream oss;
+                  // oss << $2->code;
+                  // oss << "?= " << l << ", " << $2->result_id << endl;
+                  // oss << ":= " << m << endl;
+                  // oss << ": " << l << endl;
+                  // oss << $4->code;
+                  // oss << ": " << m << endl;
+                  // $$->code = os.str();
                 }
 
                 | IF bool_expr THEN stateInnerOne ELSE stateInnerOne ENDIF {printf("statement -> IF bool_exp THEN stateInnerOne ELSE stateInnerOne ENDIF \n");}
