@@ -141,8 +141,8 @@ Terminals, with rules where they appear
     L_SQUARE_BRACKET (302) 13 66
     R_SQUARE_BRACKET (303) 13 66
     ASSIGN (304) 16 21
-    NUMBER <int_val> (305) 13 21 56 59
-    IDENT <op_val> (306) 5
+    NUMBER <int> (305) 13 21 56 59
+    IDENT <char*> (306) 5
 
 
 Nonterminals, with rules where they appear
@@ -161,13 +161,13 @@ Nonterminals, with rules where they appear
     ident <e_semval> (56)
         on left: 5
         on right: 4 14 15 61 65 66
-    funcInnerParams <e_semval> (57)
+    funcInnerParams <s_semval> (57)
         on left: 6 7
         on right: 4 6
-    funcInnerLocals (58)
+    funcInnerLocals <s_semval> (58)
         on left: 8 9
         on right: 4 8
-    funcInnerTwo (59)
+    funcInnerTwo <s_semval> (59)
         on left: 10 11
         on right: 4 10
     declaration <e_semval> (60)
@@ -182,7 +182,7 @@ Nonterminals, with rules where they appear
     stateInnerOne <s_semval> (63)
         on left: 26 27
         on right: 17 18 19 20 21 26
-    stateInnerTwo (64)
+    stateInnerTwo <s_semval> (64)
         on left: 28 29
         on right: 22 23 29
     bool_expr <e_semval> (65)

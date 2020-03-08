@@ -1,4 +1,11 @@
+
+
 %{
+#define YY_NO_UNPUT
+#define api.value.type variant
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 #include "heading.h"
 int yyerror(char *s);
 int yylex(void);
@@ -44,8 +51,8 @@ string new_temp(){
 %}
 
 %union{
-  int int_val;
-  char*	op_val;
+  // int int_val;
+  // char*	op_val;
   struct expression_semval* e_semval;
   struct statement_semval* s_semval;
   struct comp_semval* c_semval;
@@ -54,15 +61,19 @@ string new_temp(){
 %start prog_start
 %token FUNCTION BEGIN_PARAMS END_PARAMS BEGIN_LOCALS END_LOCALS BEGIN_BODY END_BODY INTEGER ARRAY OF IF THEN ENDIF ELSE FOR WHILE DO BEGINLOOP ENDLOOP CONTINUE READ WRITE AND OR NOT TRUE FALSE RETURN
 %token SUB ADD MULT DIV MOD EQ NEQ LT GT LTE GTE SEMICOLON COLON COMMA L_PAREN R_PAREN L_SQUARE_BRACKET R_SQUARE_BRACKET ASSIGN
-%token <int_val> NUMBER
-%token <op_val> IDENT
+%token <int> NUMBER
+%token <char*> IDENT
 
 %type <s_semval> prog_start
 %type <s_semval> progInner
 %type <s_semval> function
+%type <s_semval> funcInnerTwo
+%type <s_semval> funcInnerParams
+%type <s_semval> funcInnerLocals
 %type <s_semval> statement
 %type <c_semval> comp
 %type <s_semval> stateInnerOne
+%type <s_semval> stateInnerTwo
 %type <e_semval> bool_expr
 %type <e_semval> var
 %type <e_semval> ident
@@ -71,13 +82,12 @@ string new_temp(){
 %type <e_semval> term
 %type <e_semval> declaration
 %type <e_semval> decInner
-%type <e_semval> funcInnerParams
 %type <e_semval> relation_expr
 %type <e_semval> relation_and_expr
 
 %%
 prog_start:     progInner {
-                  $$->code = $1->code;
+                  cout << $1->code;
                 }
                 ;
 progInner:      function progInner {
@@ -89,7 +99,12 @@ progInner:      function progInner {
                   $$->code = "";
                 }
                 ;
-function:       FUNCTION ident SEMICOLON BEGIN_PARAMS funcInnerParams END_PARAMS BEGIN_LOCALS funcInnerLocals END_LOCALS BEGIN_BODY funcInnerTwo END_BODY {printf("function -> function ident SEMICOLON BEGIN_PARAMS funcInnerOne END_PARAMS BEGIN_LOCALS funcInnerOne END_LOCALS BEGIN_BODY funcInnerTwo END_BODYc\n");}
+function:       FUNCTION ident SEMICOLON BEGIN_PARAMS funcInnerParams END_PARAMS BEGIN_LOCALS funcInnerLocals END_LOCALS BEGIN_BODY funcInnerTwo END_BODY 
+                {
+                  ostringstream oss;
+                  oss << $2->code << $5->code << $8->code << $11->code;
+                  $$->code = oss.str();
+                }
                 ;
 ident:          IDENT
                 {
@@ -112,29 +127,50 @@ funcInnerParams:    declaration SEMICOLON funcInnerParams
                     }
                     |
                     {
-                      //epsilon case
+                      $$->code = "";
                     }
                     ;
-funcInnerLocals:    declaration SEMICOLON funcInnerLocals {printf("funcInnerOne -> declaration SEMICOLON funcInnerOne \n");}
-                    | {printf("funcInnerOne -> Epsilon \n");}
+funcInnerLocals:    declaration SEMICOLON funcInnerLocals 
+                    {
+                      ostringstream oss;
+                      oss << $1->code;
+                      oss << $3->code;
+                      $$->code = oss.str();
+                    }
+                    | 
+                    {
+                      $$->code = "";
+                    }
                     ;
-funcInnerTwo:   statement SEMICOLON funcInnerTwo {printf("funcInnerTwo -> statement SEMICOLON funcInnerTwo \n");}
-                | {printf("funcInnerTwo -> Epsilon \n");}
+funcInnerTwo:   statement SEMICOLON funcInnerTwo 
+                {
+                  $$->code = $1->code;
+                }
+                | 
+                {
+                  $$->code = "";
+                }
                 ;
 declaration:    decInner COLON INTEGER
                 {
-                  ostringstream oss;
-                  oss << $1->code;
+                  $$->code = $1->code;
                 }
                 | decInner COLON ARRAY L_SQUARE_BRACKET NUMBER R_SQUARE_BRACKET OF INTEGER {printf("declaration -> decInner COLON ARRAY L_SQUARE_BRACKET NUMBER R_SQUARE_BRACKET OF INTEGER \n");}
                 ;
-decInner:       ident {printf("decInner -> ident \n");}
+decInner:       ident 
+                {
+                  $$->code = $1->code;
+                }
                 | ident COMMA decInner {printf("decInner -> ident COMMA decInner \n");}
                 ;
 statement:      var ASSIGN expression
                 {
                   ostringstream oss;
+                  oss << $3->code;
                   string x = new_temp();
+                  oss << ". " << x << endl;
+                  oss << "= " << x << ", " << $1->result_id << ", " << $3->result_id << endl;
+                  $$->code = oss.str();
                 }
                 | IF bool_expr THEN stateInnerOne ENDIF
                 {
@@ -145,7 +181,7 @@ statement:      var ASSIGN expression
                   oss << $2->code;
                   oss << "?:= " << l << ", " << $2->result_id << endl;
                   oss << ":= m" << endl;
-                  oss << ":= " << l << endl;
+                  oss << ": " << l << endl;
                   oss << $4->code;
                   oss << ": " << m << endl;
 
@@ -155,10 +191,29 @@ statement:      var ASSIGN expression
                 | WHILE bool_expr BEGINLOOP stateInnerOne ENDLOOP {printf("statement -> WHILE bool_expr BEGINLOOP stateInnerOne ENDLOOP \n");}
                 | DO BEGINLOOP stateInnerOne ENDLOOP WHILE bool_expr {printf("statement -> DO BEGINLOOP stateInnerOne ENDLOOP WHILE bool_expr \n");}
                 | FOR var ASSIGN NUMBER SEMICOLON bool_expr SEMICOLON var ASSIGN expression BEGINLOOP stateInnerOne ENDLOOP {printf("statement -> FOR var ASSIGN NUMBER SEMICOLON bool_expr SEMICOLON var ASSIGN expression BEGINLOOP stateInnerOne ENDLOOP \n");}
-                | READ stateInnerTwo {printf("statement -> read stateInnerTwo \n");}
-                | WRITE stateInnerTwo {printf("statement -> write stateInnerTwo \n");}
-                | CONTINUE {printf("statement -> CONTINUE \n");}
-                | RETURN expression {printf("statement -> RETURN expression \n");}
+                | READ stateInnerTwo 
+                {
+                  // ostringstream oss;
+                  // oss << $2->code;
+                  // oss << ".< " << $2->resul
+                }
+                | WRITE stateInnerTwo 
+                {printf("statement -> write stateInnerTwo \n");}
+                | CONTINUE 
+                {
+                  ostringstream oss;
+                  string x = new_label();
+                  oss << ":= x" << endl;
+                  oss << ": " << x << endl;
+                  $$->code = oss.str();
+                }
+                | RETURN expression 
+                {
+                  ostringstream oss;
+                  oss << $2->code;
+                  oss << "ret " << $2->result_id << endl;
+                  $$->code = oss.str();
+                }
                 ;
 stateInnerOne:  statement SEMICOLON stateInnerOne {printf("stateInnerOne -> statement SEMICOLON stateInnerOne \n");}
                 | statement SEMICOLON {printf("stateInnerOne -> statement SEMICOLON \n");}
@@ -240,7 +295,7 @@ comp:           EQ
                 }
                 ;
 expression:     multiplicative_expr
-                {
+                {                  
                   $$->result_id = $1->result_id;
                   $$->code = $1->code;
                 }
@@ -249,59 +304,67 @@ expression:     multiplicative_expr
                   ostringstream oss;
                   oss << $1->code << $3->code;
                   string x = new_temp();
+                  oss << ". " << x << endl;
                   oss << "+ " << x << ", " << $1->result_id << ", " << $3->result_id << endl;
                   $$->code = oss.str();
-                  $$->result_id = stoi($1->result_id) + stoi($3->result_id);
+                  $$->result_id = x;
                 }
                 | multiplicative_expr SUB expression
                 {
                   ostringstream oss;
                   oss << $1->code << $3->code;
                   string x = new_temp();
+                  oss << ". " << x << endl;
                   oss << "- " << x << ", " << $1->result_id << ", " << $3->result_id << endl;
                   $$->code = oss.str();
-                  $$->result_id = stoi($1->result_id) + stoi($3->result_id);
+                  $$->result_id = x;
                 }
                 ;
 multiplicative_expr:  term
                       {
-                        $$->code = $1->code;
-                        $$->result_id = $1->result_id;
-                        $$->code = $1->code;
+                        ostringstream oss;
+                        string x = new_temp();
+                        oss << $1->code;
+                        oss << ". " << x << endl;
+                        oss << "= " << x << ", " << $1->result_id << endl;
+                        $$->code = oss.str();
+                        $$->result_id = x;
                       }
                       | term MULT multiplicative_expr
                       {
                         ostringstream oss;
                         oss << $1->code << $3->code;
                         string x = new_temp();
+                        oss << ". " << x << endl;
                         oss << "* " << x << ", " << $1->result_id << ", " << $3->result_id << endl;
                         $$->code = oss.str();
-                        $$->result_id = stoi($1->result_id) + stoi($3->result_id);
+                        $$->result_id = x; //stoi($1->result_id) + stoi($3->result_id);
                       }
                       | term DIV multiplicative_expr 
                       {
                         ostringstream oss;
                         oss << $1->code << $3->code;
                         string x = new_temp();
+                        oss << ". " << x << endl;
                         oss << "/ " << x << ", " << $1->result_id << ", " << $3->result_id << endl;
                         $$->code = oss.str();
-                        $$->result_id = stoi($1->result_id) + stoi($3->result_id);
+                        $$->result_id = x; //  stoi($1->result_id) + stoi($3->result_id);
                       }
                       | term MOD multiplicative_expr 
                       {
                         ostringstream oss;
                         oss << $1->code << $3->code;
                         string x = new_temp();
+                        oss << ". " << x << endl;
                         oss << "% " << x << ", " << $1->result_id << ", " << $3->result_id << endl;
                         $$->code = oss.str();
-                        $$->result_id = stoi($1->result_id) + stoi($3->result_id);
+                        $$->result_id = x;
                       }
                       ;
 term:           var
                 {
                   $$->code = $1->code;
                   $$->result_id = $1->result_id;
-                  $$->code = $1->code;
                 }
                 | NUMBER
                 {
@@ -324,13 +387,15 @@ termInnerOne:   expression COMMA termInnerOne {printf("termInnerOne -> expressio
                 ;
 var:            ident
                 {
-                  ostringstream oss;
-                  string x = new_temp();
-                  oss << $1->code;
-                  oss << ". " << x << endl;
-                  oss << "= " << x << ", " << $1->result_id << endl;
-                  $$->code = oss.str();
-                  $$->result_id = x;
+                  // ostringstream oss;
+                  // string x = new_temp();
+                  // oss << $1->code;
+                  // oss << ". " << x << endl;
+                  // oss << "= " << x << ", " << $1->result_id << endl;
+                  // $$->code = oss.str();
+                  // $$->result_id = x;
+                  $$->code = $1->code;
+                  $$->result_id = $1->result_id;
                 }
                 | ident L_SQUARE_BRACKET expression R_SQUARE_BRACKET
                 {

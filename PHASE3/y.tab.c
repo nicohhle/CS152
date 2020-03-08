@@ -66,8 +66,13 @@
 
 
 /* First part of user prologue.  */
-#line 1 "mini_l.y"
+#line 3 "mini_l.y"
 
+#define YY_NO_UNPUT
+#define api.value.type variant
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 #include "heading.h"
 int yyerror(char *s);
 int yylex(void);
@@ -76,42 +81,24 @@ int labelCount = 0;
 int tempCount = 0;
 int paramCount = 0;
 
-struct statement_semval {
-  string code;
-};
-
-struct expression_semval {
-  string code;
-  string result_id;
-};
-
-struct ident_semval {
-  string name;
-};
-
-struct comp_semval {
-  string optr;
-};
-
-
 string new_label(){
-  string x = "__label__";
-  labelCount += 1;
+    string x = "__label__";
+    labelCount += 1;
 
-  x += to_string(labelCount);
-  return x;
-}
+    x += to_string(labelCount);
+    return x;
+  }
 
-string new_temp(){
-  string x = "__temp__";
-  tempCount += 1;
+  string new_temp(){
+    string x = "__temp__";
+    tempCount += 1;
 
-  x += to_string(tempCount);
-  return x;
-}
+    x += to_string(tempCount);
+    return x;
+  }
 
 
-#line 115 "y.tab.c"
+#line 102 "y.tab.c"
 
 # ifndef YY_CAST
 #  ifdef __cplusplus
@@ -215,15 +202,32 @@ extern int yydebug;
 #if ! defined YYSTYPE && ! defined YYSTYPE_IS_DECLARED
 union YYSTYPE
 {
-#line 46 "mini_l.y"
+#line 35 "mini_l.y"
 
-  int int_val;
-  char*	op_val;
-  struct expression_semval* e_semval;
-  struct statement_semval* s_semval;
-  struct comp_semval* c_semval;
+  // int int_val;
+  // char*	op_val;
+  // struct expression_semval* e_semval;
+  // struct statement_semval* s_semval;
+  // struct comp_semval* c_semval;
 
-#line 227 "y.tab.c"
+    struct s_semval {
+    string code;
+  };
+
+  struct e_semval {
+    string code;
+    string result_id;
+  };
+
+  struct ident_semval {
+    string name;
+  };
+
+  struct c_semval {
+    string optr;
+  };
+
+#line 231 "y.tab.c"
 
 };
 typedef union YYSTYPE YYSTYPE;
@@ -603,13 +607,13 @@ static const yytype_int8 yytranslate[] =
   /* YYRLINE[YYN] -- Source line where rule number YYN was defined.  */
 static const yytype_int16 yyrline[] =
 {
-       0,    79,    79,    83,    88,    92,    94,   102,   114,   118,
-     119,   121,   122,   124,   129,   131,   132,   134,   139,   154,
-     155,   156,   157,   158,   159,   160,   161,   163,   164,   166,
-     167,   169,   174,   184,   189,   199,   209,   210,   211,   212,
-     213,   214,   215,   217,   221,   225,   229,   233,   237,   242,
-     247,   256,   266,   272,   281,   290,   300,   306,   315,   316,
-     317,   318,   319,   321,   322,   323,   325,   335
+       0,    88,    88,    92,    97,   101,   108,   116,   128,   132,
+     140,   144,   149,   153,   157,   159,   163,   165,   174,   189,
+     190,   191,   192,   193,   199,   201,   209,   217,   218,   220,
+     221,   223,   228,   238,   243,   253,   263,   264,   265,   266,
+     267,   268,   269,   271,   275,   279,   283,   287,   291,   296,
+     301,   311,   322,   332,   342,   352,   363,   368,   377,   378,
+     379,   380,   381,   383,   384,   385,   387,   399
 };
 #endif
 
@@ -1504,50 +1508,54 @@ yyreduce:
   switch (yyn)
     {
   case 2:
-#line 79 "mini_l.y"
+#line 88 "mini_l.y"
                           {
-                  (yyval.s_semval)->code = (yyvsp[0].s_semval)->code;
+                  cout << (yyvsp[0].s_semval).code;
                 }
-#line 1512 "y.tab.c"
+#line 1516 "y.tab.c"
     break;
 
   case 3:
-#line 83 "mini_l.y"
+#line 92 "mini_l.y"
                                    {
                   ostringstream oss;
                   oss << (yyvsp[-1].s_semval)->code << (yyvsp[0].s_semval)->code;
                   (yyval.s_semval)->code = oss.str();
                 }
-#line 1522 "y.tab.c"
+#line 1526 "y.tab.c"
     break;
 
   case 4:
-#line 88 "mini_l.y"
+#line 97 "mini_l.y"
                   {
                   (yyval.s_semval)->code = "";
                 }
-#line 1530 "y.tab.c"
+#line 1534 "y.tab.c"
     break;
 
   case 5:
-#line 92 "mini_l.y"
-                                                                                                                                                          {printf("function -> function ident SEMICOLON BEGIN_PARAMS funcInnerOne END_PARAMS BEGIN_LOCALS funcInnerOne END_LOCALS BEGIN_BODY funcInnerTwo END_BODYc\n");}
-#line 1536 "y.tab.c"
+#line 102 "mini_l.y"
+                {
+                  ostringstream oss;
+                  oss << (yyvsp[-10].e_semval)->code << (yyvsp[-7].s_semval)->code << (yyvsp[-4].s_semval)->code << (yyvsp[-1].s_semval)->code;
+                  (yyval.s_semval)->code = oss.str();
+                }
+#line 1544 "y.tab.c"
     break;
 
   case 6:
-#line 95 "mini_l.y"
+#line 109 "mini_l.y"
                 {
                   ostringstream oss;
-                  oss << ". " << (yyvsp[0].op_val) << endl;
+                  oss << ". " << (yyvsp[0].char*) << endl;
                   (yyval.e_semval)->code = oss.str();
-                  (yyval.e_semval)->result_id = (yyvsp[0].op_val);
+                  (yyval.e_semval)->result_id = (yyvsp[0].char*);
                 }
-#line 1547 "y.tab.c"
+#line 1555 "y.tab.c"
     break;
 
   case 7:
-#line 103 "mini_l.y"
+#line 117 "mini_l.y"
                     {
                       ostringstream oss;
                       string x = new_temp();
@@ -1555,82 +1563,98 @@ yyreduce:
                       oss << "= " << (yyvsp[-2].e_semval)->result_id << ", $" << paramCount << endl;
                       oss << ". " << x << endl;
                       oss << "= " << x << ", " << (yyvsp[-2].e_semval)->result_id << endl;
-                      (yyval.e_semval)->code = oss.str();
+                      (yyval.s_semval)->code = oss.str();
                       paramCount++;
-                    }
-#line 1562 "y.tab.c"
-    break;
-
-  case 8:
-#line 114 "mini_l.y"
-                    {
-                      //epsilon case
                     }
 #line 1570 "y.tab.c"
     break;
 
+  case 8:
+#line 128 "mini_l.y"
+                    {
+                      (yyval.s_semval)->code = "";
+                    }
+#line 1578 "y.tab.c"
+    break;
+
   case 9:
-#line 118 "mini_l.y"
-                                                          {printf("funcInnerOne -> declaration SEMICOLON funcInnerOne \n");}
-#line 1576 "y.tab.c"
+#line 133 "mini_l.y"
+                    {
+                      ostringstream oss;
+                      oss << (yyvsp[-2].e_semval)->code;
+                      oss << (yyvsp[0].s_semval)->code;
+                      (yyval.s_semval)->code = oss.str();
+                    }
+#line 1589 "y.tab.c"
     break;
 
   case 10:
-#line 119 "mini_l.y"
-                      {printf("funcInnerOne -> Epsilon \n");}
-#line 1582 "y.tab.c"
+#line 140 "mini_l.y"
+                    {
+                      (yyval.s_semval)->code = "";
+                    }
+#line 1597 "y.tab.c"
     break;
 
   case 11:
-#line 121 "mini_l.y"
-                                                 {printf("funcInnerTwo -> statement SEMICOLON funcInnerTwo \n");}
-#line 1588 "y.tab.c"
+#line 145 "mini_l.y"
+                {
+                  (yyval.s_semval)->code = (yyvsp[-2].s_semval)->code;
+                }
+#line 1605 "y.tab.c"
     break;
 
   case 12:
-#line 122 "mini_l.y"
-                  {printf("funcInnerTwo -> Epsilon \n");}
-#line 1594 "y.tab.c"
+#line 149 "mini_l.y"
+                {
+                  (yyval.s_semval)->code = "";
+                }
+#line 1613 "y.tab.c"
     break;
 
   case 13:
-#line 125 "mini_l.y"
+#line 154 "mini_l.y"
                 {
-                  ostringstream oss;
-                  oss << (yyvsp[-2].e_semval)->code;
+                  (yyval.e_semval)->code = (yyvsp[-2].e_semval)->code;
                 }
-#line 1603 "y.tab.c"
-    break;
-
-  case 14:
-#line 129 "mini_l.y"
-                                                                                           {printf("declaration -> decInner COLON ARRAY L_SQUARE_BRACKET NUMBER R_SQUARE_BRACKET OF INTEGER \n");}
-#line 1609 "y.tab.c"
-    break;
-
-  case 15:
-#line 131 "mini_l.y"
-                      {printf("decInner -> ident \n");}
-#line 1615 "y.tab.c"
-    break;
-
-  case 16:
-#line 132 "mini_l.y"
-                                       {printf("decInner -> ident COMMA decInner \n");}
 #line 1621 "y.tab.c"
     break;
 
+  case 14:
+#line 157 "mini_l.y"
+                                                                                           {printf("declaration -> decInner COLON ARRAY L_SQUARE_BRACKET NUMBER R_SQUARE_BRACKET OF INTEGER \n");}
+#line 1627 "y.tab.c"
+    break;
+
+  case 15:
+#line 160 "mini_l.y"
+                {
+                  (yyval.e_semval)->code = (yyvsp[0].e_semval)->code;
+                }
+#line 1635 "y.tab.c"
+    break;
+
+  case 16:
+#line 163 "mini_l.y"
+                                       {printf("decInner -> ident COMMA decInner \n");}
+#line 1641 "y.tab.c"
+    break;
+
   case 17:
-#line 135 "mini_l.y"
+#line 166 "mini_l.y"
                 {
                   ostringstream oss;
+                  oss << (yyvsp[0].e_semval)->code;
                   string x = new_temp();
+                  oss << ". " << x << endl;
+                  oss << "= " << x << ", " << (yyvsp[-2].e_semval)->result_id << ", " << (yyvsp[0].e_semval)->result_id << endl;
+                  (yyval.s_semval)->code = oss.str();
                 }
-#line 1630 "y.tab.c"
+#line 1654 "y.tab.c"
     break;
 
   case 18:
-#line 140 "mini_l.y"
+#line 175 "mini_l.y"
                 {
                   string l = new_label();
                   string m = new_label();
@@ -1639,98 +1663,113 @@ yyreduce:
                   oss << (yyvsp[-3].e_semval)->code;
                   oss << "?:= " << l << ", " << (yyvsp[-3].e_semval)->result_id << endl;
                   oss << ":= m" << endl;
-                  oss << ":= " << l << endl;
+                  oss << ": " << l << endl;
                   oss << (yyvsp[-1].s_semval)->code;
                   oss << ": " << m << endl;
 
                   (yyval.s_semval)->code = oss.str();
                 }
-#line 1649 "y.tab.c"
-    break;
-
-  case 19:
-#line 154 "mini_l.y"
-                                                                           {printf("statement -> IF bool_exp THEN stateInnerOne ELSE stateInnerOne ENDIF \n");}
-#line 1655 "y.tab.c"
-    break;
-
-  case 20:
-#line 155 "mini_l.y"
-                                                                  {printf("statement -> WHILE bool_expr BEGINLOOP stateInnerOne ENDLOOP \n");}
-#line 1661 "y.tab.c"
-    break;
-
-  case 21:
-#line 156 "mini_l.y"
-                                                                     {printf("statement -> DO BEGINLOOP stateInnerOne ENDLOOP WHILE bool_expr \n");}
-#line 1667 "y.tab.c"
-    break;
-
-  case 22:
-#line 157 "mini_l.y"
-                                                                                                                            {printf("statement -> FOR var ASSIGN NUMBER SEMICOLON bool_expr SEMICOLON var ASSIGN expression BEGINLOOP stateInnerOne ENDLOOP \n");}
 #line 1673 "y.tab.c"
     break;
 
-  case 23:
-#line 158 "mini_l.y"
-                                     {printf("statement -> read stateInnerTwo \n");}
+  case 19:
+#line 189 "mini_l.y"
+                                                                           {printf("statement -> IF bool_exp THEN stateInnerOne ELSE stateInnerOne ENDIF \n");}
 #line 1679 "y.tab.c"
     break;
 
-  case 24:
-#line 159 "mini_l.y"
-                                      {printf("statement -> write stateInnerTwo \n");}
+  case 20:
+#line 190 "mini_l.y"
+                                                                  {printf("statement -> WHILE bool_expr BEGINLOOP stateInnerOne ENDLOOP \n");}
 #line 1685 "y.tab.c"
     break;
 
-  case 25:
-#line 160 "mini_l.y"
-                           {printf("statement -> CONTINUE \n");}
+  case 21:
+#line 191 "mini_l.y"
+                                                                     {printf("statement -> DO BEGINLOOP stateInnerOne ENDLOOP WHILE bool_expr \n");}
 #line 1691 "y.tab.c"
     break;
 
-  case 26:
-#line 161 "mini_l.y"
-                                    {printf("statement -> RETURN expression \n");}
+  case 22:
+#line 192 "mini_l.y"
+                                                                                                                            {printf("statement -> FOR var ASSIGN NUMBER SEMICOLON bool_expr SEMICOLON var ASSIGN expression BEGINLOOP stateInnerOne ENDLOOP \n");}
 #line 1697 "y.tab.c"
     break;
 
+  case 23:
+#line 194 "mini_l.y"
+                {
+                  // ostringstream oss;
+                  // oss << $2->code;
+                  // oss << ".< " << $2->resul
+                }
+#line 1707 "y.tab.c"
+    break;
+
+  case 24:
+#line 200 "mini_l.y"
+                {printf("statement -> write stateInnerTwo \n");}
+#line 1713 "y.tab.c"
+    break;
+
+  case 25:
+#line 202 "mini_l.y"
+                {
+                  ostringstream oss;
+                  string x = new_label();
+                  oss << ":= x" << endl;
+                  oss << ": " << x << endl;
+                  (yyval.s_semval)->code = oss.str();
+                }
+#line 1725 "y.tab.c"
+    break;
+
+  case 26:
+#line 210 "mini_l.y"
+                {
+                  ostringstream oss;
+                  oss << (yyvsp[0].e_semval)->code;
+                  oss << "ret " << (yyvsp[0].e_semval)->result_id << endl;
+                  (yyval.s_semval)->code = oss.str();
+                }
+#line 1736 "y.tab.c"
+    break;
+
   case 27:
-#line 163 "mini_l.y"
+#line 217 "mini_l.y"
                                                   {printf("stateInnerOne -> statement SEMICOLON stateInnerOne \n");}
-#line 1703 "y.tab.c"
+#line 1742 "y.tab.c"
     break;
 
   case 28:
-#line 164 "mini_l.y"
+#line 218 "mini_l.y"
                                       {printf("stateInnerOne -> statement SEMICOLON \n");}
-#line 1709 "y.tab.c"
+#line 1748 "y.tab.c"
     break;
 
   case 29:
-#line 166 "mini_l.y"
+#line 220 "mini_l.y"
                     {printf("stateInnerTwo -> var \n");}
-#line 1715 "y.tab.c"
+#line 1754 "y.tab.c"
     break;
 
   case 30:
-#line 167 "mini_l.y"
+#line 221 "mini_l.y"
                                           {printf("stateInnerTwo -> var COMMA stateInnerTwo \n");}
-#line 1721 "y.tab.c"
+#line 1760 "y.tab.c"
     break;
 
   case 31:
-#line 170 "mini_l.y"
+#line 224 "mini_l.y"
                 {
                   (yyval.e_semval)->code = (yyvsp[0].e_semval)->code;
                   (yyval.e_semval)->result_id = (yyvsp[0].e_semval)->result_id;
                 }
-#line 1730 "y.tab.c"
+#line 1769 "y.tab.c"
     break;
 
   case 32:
-#line 175 "mini_l.y"
+#line 229 "mini_l.y"
                 {
                   ostringstream oss;
                   oss << (yyvsp[-2].e_semval)->code << (yyvsp[0].e_semval)->code;
@@ -1739,20 +1778,20 @@ yyreduce:
                   (yyval.e_semval)->code = oss.str();
                   (yyval.e_semval)->result_id = x;
                 }
-#line 1743 "y.tab.c"
+#line 1782 "y.tab.c"
     break;
 
   case 33:
-#line 185 "mini_l.y"
+#line 239 "mini_l.y"
                     {
                       (yyval.e_semval)->code = (yyvsp[0].e_semval)->code;
                       (yyval.e_semval)->result_id = (yyvsp[0].e_semval)->result_id;
                     }
-#line 1752 "y.tab.c"
+#line 1791 "y.tab.c"
     break;
 
   case 34:
-#line 190 "mini_l.y"
+#line 244 "mini_l.y"
                     {
                       ostringstream oss;
                       oss << (yyvsp[-2].e_semval)->code << (yyvsp[0].e_semval)->code;
@@ -1761,11 +1800,11 @@ yyreduce:
                       (yyval.e_semval)->code = oss.str();
                       (yyval.e_semval)->result_id = x;
                     }
-#line 1765 "y.tab.c"
+#line 1804 "y.tab.c"
     break;
 
   case 35:
-#line 200 "mini_l.y"
+#line 254 "mini_l.y"
                 {
                   ostringstream oss;
                   string x = new_temp();
@@ -1775,278 +1814,288 @@ yyreduce:
                   (yyval.e_semval)->code = oss.str();
                   (yyval.e_semval)->result_id = x;
                 }
-#line 1779 "y.tab.c"
+#line 1818 "y.tab.c"
     break;
 
   case 36:
-#line 209 "mini_l.y"
+#line 263 "mini_l.y"
                        {printf("relation_expr -> TRUE \n");}
-#line 1785 "y.tab.c"
+#line 1824 "y.tab.c"
     break;
 
   case 37:
-#line 210 "mini_l.y"
+#line 264 "mini_l.y"
                         {printf("relation_expr -> FALSE \n");}
-#line 1791 "y.tab.c"
+#line 1830 "y.tab.c"
     break;
 
   case 38:
-#line 211 "mini_l.y"
+#line 265 "mini_l.y"
                                             {printf("relation_expr -> L_PAREN bool_expr R_PAREN \n");}
-#line 1797 "y.tab.c"
+#line 1836 "y.tab.c"
     break;
 
   case 39:
-#line 212 "mini_l.y"
+#line 266 "mini_l.y"
                                                  {printf("relation_expr -> NOT expression comp expression \n");}
-#line 1803 "y.tab.c"
+#line 1842 "y.tab.c"
     break;
 
   case 40:
-#line 213 "mini_l.y"
+#line 267 "mini_l.y"
                            {printf("relation_expr -> NOT TRUE \n");}
-#line 1809 "y.tab.c"
+#line 1848 "y.tab.c"
     break;
 
   case 41:
-#line 214 "mini_l.y"
+#line 268 "mini_l.y"
                             {printf("relation_expr -> NOT FALSE \n");}
-#line 1815 "y.tab.c"
+#line 1854 "y.tab.c"
     break;
 
   case 42:
-#line 215 "mini_l.y"
+#line 269 "mini_l.y"
                                                 {printf("relation_expr -> NOT L_PAREN bool_expr R_PAREN \n");}
-#line 1821 "y.tab.c"
+#line 1860 "y.tab.c"
     break;
 
   case 43:
-#line 218 "mini_l.y"
+#line 272 "mini_l.y"
                 {
                   (yyval.c_semval)->optr = "=";
                 }
-#line 1829 "y.tab.c"
+#line 1868 "y.tab.c"
     break;
 
   case 44:
-#line 222 "mini_l.y"
+#line 276 "mini_l.y"
                 {
                   (yyval.c_semval)->optr = "!=";
                 }
-#line 1837 "y.tab.c"
+#line 1876 "y.tab.c"
     break;
 
   case 45:
-#line 226 "mini_l.y"
+#line 280 "mini_l.y"
                 {
                   (yyval.c_semval)->optr = "<";
                 }
-#line 1845 "y.tab.c"
+#line 1884 "y.tab.c"
     break;
 
   case 46:
-#line 230 "mini_l.y"
+#line 284 "mini_l.y"
                 {
                   (yyval.c_semval)->optr = ">";
                 }
-#line 1853 "y.tab.c"
+#line 1892 "y.tab.c"
     break;
 
   case 47:
-#line 234 "mini_l.y"
+#line 288 "mini_l.y"
                 {
                   (yyval.c_semval)->optr = "<=";
                 }
-#line 1861 "y.tab.c"
+#line 1900 "y.tab.c"
     break;
 
   case 48:
-#line 238 "mini_l.y"
+#line 292 "mini_l.y"
                 {
                   (yyval.c_semval)->optr = ">=";
                 }
-#line 1869 "y.tab.c"
+#line 1908 "y.tab.c"
     break;
 
   case 49:
-#line 243 "mini_l.y"
-                {
+#line 297 "mini_l.y"
+                {                  
                   (yyval.e_semval)->result_id = (yyvsp[0].e_semval)->result_id;
                   (yyval.e_semval)->code = (yyvsp[0].e_semval)->code;
                 }
-#line 1878 "y.tab.c"
+#line 1917 "y.tab.c"
     break;
 
   case 50:
-#line 248 "mini_l.y"
+#line 302 "mini_l.y"
                 {
                   ostringstream oss;
                   oss << (yyvsp[-2].e_semval)->code << (yyvsp[0].e_semval)->code;
                   string x = new_temp();
+                  oss << ". " << x << endl;
                   oss << "+ " << x << ", " << (yyvsp[-2].e_semval)->result_id << ", " << (yyvsp[0].e_semval)->result_id << endl;
-                  (yyval.e_semval)->code = oss.str();
-                  (yyval.e_semval)->result_id = stoi((yyvsp[-2].e_semval)->result_id) + stoi((yyvsp[0].e_semval)->result_id);
-                }
-#line 1891 "y.tab.c"
-    break;
-
-  case 51:
-#line 257 "mini_l.y"
-                {
-                  ostringstream oss;
-                  oss << (yyvsp[-2].e_semval)->code << (yyvsp[0].e_semval)->code;
-                  string x = new_temp();
-                  oss << "- " << x << ", " << (yyvsp[-2].e_semval)->result_id << ", " << (yyvsp[0].e_semval)->result_id << endl;
-                  (yyval.e_semval)->code = oss.str();
-                  (yyval.e_semval)->result_id = stoi((yyvsp[-2].e_semval)->result_id) + stoi((yyvsp[0].e_semval)->result_id);
-                }
-#line 1904 "y.tab.c"
-    break;
-
-  case 52:
-#line 267 "mini_l.y"
-                      {
-                        (yyval.e_semval)->code = (yyvsp[0].e_semval)->code;
-                        (yyval.e_semval)->result_id = (yyvsp[0].e_semval)->result_id;
-                        (yyval.e_semval)->code = (yyvsp[0].e_semval)->code;
-                      }
-#line 1914 "y.tab.c"
-    break;
-
-  case 53:
-#line 273 "mini_l.y"
-                      {
-                        ostringstream oss;
-                        oss << (yyvsp[-2].e_semval)->code << (yyvsp[0].e_semval)->code;
-                        string x = new_temp();
-                        oss << "* " << x << ", " << (yyvsp[-2].e_semval)->result_id << ", " << (yyvsp[0].e_semval)->result_id << endl;
-                        (yyval.e_semval)->code = oss.str();
-                        (yyval.e_semval)->result_id = stoi((yyvsp[-2].e_semval)->result_id) + stoi((yyvsp[0].e_semval)->result_id);
-                      }
-#line 1927 "y.tab.c"
-    break;
-
-  case 54:
-#line 282 "mini_l.y"
-                      {
-                        ostringstream oss;
-                        oss << (yyvsp[-2].e_semval)->code << (yyvsp[0].e_semval)->code;
-                        string x = new_temp();
-                        oss << "/ " << x << ", " << (yyvsp[-2].e_semval)->result_id << ", " << (yyvsp[0].e_semval)->result_id << endl;
-                        (yyval.e_semval)->code = oss.str();
-                        (yyval.e_semval)->result_id = stoi((yyvsp[-2].e_semval)->result_id) + stoi((yyvsp[0].e_semval)->result_id);
-                      }
-#line 1940 "y.tab.c"
-    break;
-
-  case 55:
-#line 291 "mini_l.y"
-                      {
-                        ostringstream oss;
-                        oss << (yyvsp[-2].e_semval)->code << (yyvsp[0].e_semval)->code;
-                        string x = new_temp();
-                        oss << "% " << x << ", " << (yyvsp[-2].e_semval)->result_id << ", " << (yyvsp[0].e_semval)->result_id << endl;
-                        (yyval.e_semval)->code = oss.str();
-                        (yyval.e_semval)->result_id = stoi((yyvsp[-2].e_semval)->result_id) + stoi((yyvsp[0].e_semval)->result_id);
-                      }
-#line 1953 "y.tab.c"
-    break;
-
-  case 56:
-#line 301 "mini_l.y"
-                {
-                  (yyval.e_semval)->code = (yyvsp[0].e_semval)->code;
-                  (yyval.e_semval)->result_id = (yyvsp[0].e_semval)->result_id;
-                  (yyval.e_semval)->code = (yyvsp[0].e_semval)->code;
-                }
-#line 1963 "y.tab.c"
-    break;
-
-  case 57:
-#line 307 "mini_l.y"
-                {
-                  ostringstream oss;
-                  string x = new_temp();
-                  oss << ". " << x << endl;
-                  oss << "= " << x << ", " << (yyvsp[0].int_val) << endl;
-                  (yyval.e_semval)->code = oss.str();
-                  (yyval.e_semval)->result_id = (yyvsp[0].int_val);
-                }
-#line 1976 "y.tab.c"
-    break;
-
-  case 58:
-#line 315 "mini_l.y"
-                                             {printf("term -> L_PAREN expression R_PAREN \n");}
-#line 1982 "y.tab.c"
-    break;
-
-  case 59:
-#line 316 "mini_l.y"
-                          {printf("term -> SUB var \n");}
-#line 1988 "y.tab.c"
-    break;
-
-  case 60:
-#line 317 "mini_l.y"
-                             {printf("term -> SUB NUMBER \n");}
-#line 1994 "y.tab.c"
-    break;
-
-  case 61:
-#line 318 "mini_l.y"
-                                                 {printf("term -> SUB L_PAREN expression R_PAREN \n");}
-#line 2000 "y.tab.c"
-    break;
-
-  case 62:
-#line 319 "mini_l.y"
-                                                     {printf("term -> ident L_PAREN termInnerOne R_PAREN \n");}
-#line 2006 "y.tab.c"
-    break;
-
-  case 63:
-#line 321 "mini_l.y"
-                                              {printf("termInnerOne -> expression COMMA termInnerOne \n");}
-#line 2012 "y.tab.c"
-    break;
-
-  case 64:
-#line 322 "mini_l.y"
-                             {printf("termInnerOne -> expression \n");}
-#line 2018 "y.tab.c"
-    break;
-
-  case 65:
-#line 323 "mini_l.y"
-                  {printf("termInnerOne -> Epsilon \n");}
-#line 2024 "y.tab.c"
-    break;
-
-  case 66:
-#line 326 "mini_l.y"
-                {
-                  ostringstream oss;
-                  string x = new_temp();
-                  oss << (yyvsp[0].e_semval)->code;
-                  oss << ". " << x << endl;
-                  oss << "= " << x << ", " << (yyvsp[0].e_semval)->result_id << endl;
                   (yyval.e_semval)->code = oss.str();
                   (yyval.e_semval)->result_id = x;
                 }
-#line 2038 "y.tab.c"
+#line 1931 "y.tab.c"
+    break;
+
+  case 51:
+#line 312 "mini_l.y"
+                {
+                  ostringstream oss;
+                  oss << (yyvsp[-2].e_semval)->code << (yyvsp[0].e_semval)->code;
+                  string x = new_temp();
+                  oss << ". " << x << endl;
+                  oss << "- " << x << ", " << (yyvsp[-2].e_semval)->result_id << ", " << (yyvsp[0].e_semval)->result_id << endl;
+                  (yyval.e_semval)->code = oss.str();
+                  (yyval.e_semval)->result_id = x;
+                }
+#line 1945 "y.tab.c"
+    break;
+
+  case 52:
+#line 323 "mini_l.y"
+                      {
+                        ostringstream oss;
+                        string x = new_temp();
+                        oss << (yyvsp[0].e_semval)->code;
+                        oss << ". " << x << endl;
+                        oss << "= " << x << ", " << (yyvsp[0].e_semval)->result_id << endl;
+                        (yyval.e_semval)->code = oss.str();
+                        (yyval.e_semval)->result_id = x;
+                      }
+#line 1959 "y.tab.c"
+    break;
+
+  case 53:
+#line 333 "mini_l.y"
+                      {
+                        ostringstream oss;
+                        oss << (yyvsp[-2].e_semval)->code << (yyvsp[0].e_semval)->code;
+                        string x = new_temp();
+                        oss << ". " << x << endl;
+                        oss << "* " << x << ", " << (yyvsp[-2].e_semval)->result_id << ", " << (yyvsp[0].e_semval)->result_id << endl;
+                        (yyval.e_semval)->code = oss.str();
+                        (yyval.e_semval)->result_id = x; //stoi($1->result_id) + stoi($3->result_id);
+                      }
+#line 1973 "y.tab.c"
+    break;
+
+  case 54:
+#line 343 "mini_l.y"
+                      {
+                        ostringstream oss;
+                        oss << (yyvsp[-2].e_semval)->code << (yyvsp[0].e_semval)->code;
+                        string x = new_temp();
+                        oss << ". " << x << endl;
+                        oss << "/ " << x << ", " << (yyvsp[-2].e_semval)->result_id << ", " << (yyvsp[0].e_semval)->result_id << endl;
+                        (yyval.e_semval)->code = oss.str();
+                        (yyval.e_semval)->result_id = x; //  stoi($1->result_id) + stoi($3->result_id);
+                      }
+#line 1987 "y.tab.c"
+    break;
+
+  case 55:
+#line 353 "mini_l.y"
+                      {
+                        ostringstream oss;
+                        oss << (yyvsp[-2].e_semval)->code << (yyvsp[0].e_semval)->code;
+                        string x = new_temp();
+                        oss << ". " << x << endl;
+                        oss << "% " << x << ", " << (yyvsp[-2].e_semval)->result_id << ", " << (yyvsp[0].e_semval)->result_id << endl;
+                        (yyval.e_semval)->code = oss.str();
+                        (yyval.e_semval)->result_id = x;
+                      }
+#line 2001 "y.tab.c"
+    break;
+
+  case 56:
+#line 364 "mini_l.y"
+                {
+                  (yyval.e_semval)->code = (yyvsp[0].e_semval)->code;
+                  (yyval.e_semval)->result_id = (yyvsp[0].e_semval)->result_id;
+                }
+#line 2010 "y.tab.c"
+    break;
+
+  case 57:
+#line 369 "mini_l.y"
+                {
+                  ostringstream oss;
+                  string x = new_temp();
+                  oss << ". " << x << endl;
+                  oss << "= " << x << ", " << (yyvsp[0].int) << endl;
+                  (yyval.e_semval)->code = oss.str();
+                  (yyval.e_semval)->result_id = (yyvsp[0].int);
+                }
+#line 2023 "y.tab.c"
+    break;
+
+  case 58:
+#line 377 "mini_l.y"
+                                             {printf("term -> L_PAREN expression R_PAREN \n");}
+#line 2029 "y.tab.c"
+    break;
+
+  case 59:
+#line 378 "mini_l.y"
+                          {printf("term -> SUB var \n");}
+#line 2035 "y.tab.c"
+    break;
+
+  case 60:
+#line 379 "mini_l.y"
+                             {printf("term -> SUB NUMBER \n");}
+#line 2041 "y.tab.c"
+    break;
+
+  case 61:
+#line 380 "mini_l.y"
+                                                 {printf("term -> SUB L_PAREN expression R_PAREN \n");}
+#line 2047 "y.tab.c"
+    break;
+
+  case 62:
+#line 381 "mini_l.y"
+                                                     {printf("term -> ident L_PAREN termInnerOne R_PAREN \n");}
+#line 2053 "y.tab.c"
+    break;
+
+  case 63:
+#line 383 "mini_l.y"
+                                              {printf("termInnerOne -> expression COMMA termInnerOne \n");}
+#line 2059 "y.tab.c"
+    break;
+
+  case 64:
+#line 384 "mini_l.y"
+                             {printf("termInnerOne -> expression \n");}
+#line 2065 "y.tab.c"
+    break;
+
+  case 65:
+#line 385 "mini_l.y"
+                  {printf("termInnerOne -> Epsilon \n");}
+#line 2071 "y.tab.c"
+    break;
+
+  case 66:
+#line 388 "mini_l.y"
+                {
+                  // ostringstream oss;
+                  // string x = new_temp();
+                  // oss << $1->code;
+                  // oss << ". " << x << endl;
+                  // oss << "= " << x << ", " << $1->result_id << endl;
+                  // $$->code = oss.str();
+                  // $$->result_id = x;
+                  (yyval.e_semval)->code = (yyvsp[0].e_semval)->code;
+                  (yyval.e_semval)->result_id = (yyvsp[0].e_semval)->result_id;
+                }
+#line 2087 "y.tab.c"
     break;
 
   case 67:
-#line 336 "mini_l.y"
+#line 400 "mini_l.y"
                 {
                   printf("ident L_SQUARE_BRACKET expression R_SQUARE_BRACKET \n");
                 }
-#line 2046 "y.tab.c"
+#line 2095 "y.tab.c"
     break;
 
 
-#line 2050 "y.tab.c"
+#line 2099 "y.tab.c"
 
       default: break;
     }
@@ -2278,7 +2327,7 @@ yyreturn:
 #endif
   return yyresult;
 }
-#line 341 "mini_l.y"
+#line 405 "mini_l.y"
 
 
 int main (int argc,char **argv) {return yyparse();}

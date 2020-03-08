@@ -105,15 +105,32 @@ extern int yydebug;
 #if ! defined YYSTYPE && ! defined YYSTYPE_IS_DECLARED
 union YYSTYPE
 {
-#line 46 "mini_l.y"
+#line 35 "mini_l.y"
 
-  int int_val;
-  char*	op_val;
-  struct expression_semval* e_semval;
-  struct statement_semval* s_semval;
-  struct comp_semval* c_semval;
+  // int int_val;
+  // char*	op_val;
+  // struct expression_semval* e_semval;
+  // struct statement_semval* s_semval;
+  // struct comp_semval* c_semval;
 
-#line 117 "y.tab.h"
+    struct s_semval {
+    string code;
+  };
+
+  struct e_semval {
+    string code;
+    string result_id;
+  };
+
+  struct ident_semval {
+    string name;
+  };
+
+  struct c_semval {
+    string optr;
+  };
+
+#line 134 "y.tab.h"
 
 };
 typedef union YYSTYPE YYSTYPE;
