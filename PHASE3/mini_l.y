@@ -57,8 +57,13 @@ string new_temp(){
 %token <int_val> NUMBER
 %token <op_val> IDENT
 
+%type <s_semval> prog_start
+%type <s_semval> progInner
+%type <s_semval> function
 %type <s_semval> statement
 %type <c_semval> comp
+%type <s_semval> stateInnerOne
+%type <e_semval> bool_expr
 %type <e_semval> var
 %type <e_semval> ident
 %type <e_semval> expression
@@ -69,13 +74,20 @@ string new_temp(){
 %type <e_semval> funcInnerParams
 %type <e_semval> relation_expr
 %type <e_semval> relation_and_expr
-%type <e_semval> bool_expr
 
 %%
-prog_start:     progInner {printf("prog_start -> progInner \n");}
+prog_start:     progInner {
+                  $$->code = $1->code;
+                }
                 ;
-progInner:      function progInner {printf("progInner -> function progInner \n");}
-                | {printf("progInner -> Epsilon \n");}
+progInner:      function progInner {
+                  ostringstream oss;
+                  oss << $1->code << $2->code;
+                  $$->code = oss.str();
+                }
+                | {
+                  $$->code = "";
+                }
                 ;
 function:       FUNCTION ident SEMICOLON BEGIN_PARAMS funcInnerParams END_PARAMS BEGIN_LOCALS funcInnerLocals END_LOCALS BEGIN_BODY funcInnerTwo END_BODY {printf("function -> function ident SEMICOLON BEGIN_PARAMS funcInnerOne END_PARAMS BEGIN_LOCALS funcInnerOne END_LOCALS BEGIN_BODY funcInnerTwo END_BODYc\n");}
                 ;
@@ -126,18 +138,19 @@ statement:      var ASSIGN expression
                 }
                 | IF bool_expr THEN stateInnerOne ENDIF
                 {
-                  // string l = new_label();
-                  // string m = new_label();
-                  // ostringstream oss;
-                  // oss << $2->code;
-                  // oss << "?= " << l << ", " << $2->result_id << endl;
-                  // oss << ":= " << m << endl;
-                  // oss << ": " << l << endl;
-                  // oss << $4->code;
-                  // oss << ": " << m << endl;
-                  // $$->code = os.str();
-                }
+                  string l = new_label();
+                  string m = new_label();
+                  ostringstream oss;
 
+                  oss << $2->code;
+                  oss << "?:= " << l << ", " << $2->result_id << endl;
+                  oss << ":= m" << endl;
+                  oss << ":= " << l << endl;
+                  oss << $4->code;
+                  oss << ": " << m << endl;
+
+                  $$->code = oss.str();
+                }
                 | IF bool_expr THEN stateInnerOne ELSE stateInnerOne ENDIF {printf("statement -> IF bool_exp THEN stateInnerOne ELSE stateInnerOne ENDIF \n");}
                 | WHILE bool_expr BEGINLOOP stateInnerOne ENDLOOP {printf("statement -> WHILE bool_expr BEGINLOOP stateInnerOne ENDLOOP \n");}
                 | DO BEGINLOOP stateInnerOne ENDLOOP WHILE bool_expr {printf("statement -> DO BEGINLOOP stateInnerOne ENDLOOP WHILE bool_expr \n");}
@@ -158,14 +171,30 @@ bool_expr:      relation_and_expr
                   $$->code = $1->code;
                   $$->result_id = $1->result_id;
                 }
-                | relation_and_expr OR bool_expr {printf("bool_expr -> relation_and_expr OR bool_expr \n");}
+                | relation_and_expr OR bool_expr 
+                {
+                  ostringstream oss;
+                  oss << $1->code << $3->code;
+                  string x = new_temp();
+                  oss << "|| " << x << ", " << $1->result_id << ", " << $3->result_id;
+                  $$->code = oss.str();
+                  $$->result_id = x;
+                }
                 ;
-relation_and_expr:  relation_expr
+relation_and_expr:  relation_expr 
                     {
                       $$->code = $1->code;
                       $$->result_id = $1->result_id;
                     }
-                    | relation_expr AND relation_and_expr  {printf("relation_and_expr -> relation_and_expr AND relation_and_expr \n");}
+                    | relation_expr AND relation_and_expr  
+                    {
+                      ostringstream oss;
+                      oss << $1->code << $3->code;
+                      string x = new_temp();
+                      oss << "&& " << x << ", " << $1->result_id << ", " << $3->result_id;
+                      $$->code = oss.str();
+                      $$->result_id = x;
+                    }
                     ;
 relation_expr:  expression comp expression
                 {
@@ -218,34 +247,59 @@ expression:     multiplicative_expr
                 | multiplicative_expr ADD expression
                 {
                   ostringstream oss;
+                  oss << $1->code << $3->code;
                   string x = new_temp();
-                  oss << "+ " << x << ", " << $1->code << ", " << $3->code << endl;
+                  oss << "+ " << x << ", " << $1->result_id << ", " << $3->result_id << endl;
                   $$->code = oss.str();
                   $$->result_id = stoi($1->result_id) + stoi($3->result_id);
                 }
                 | multiplicative_expr SUB expression
                 {
                   ostringstream oss;
+                  oss << $1->code << $3->code;
                   string x = new_temp();
-                  oss << "- " << x << ", " << $1->code << ", " << $3->code << endl;
+                  oss << "- " << x << ", " << $1->result_id << ", " << $3->result_id << endl;
                   $$->code = oss.str();
                   $$->result_id = stoi($1->result_id) + stoi($3->result_id);
                 }
                 ;
 multiplicative_expr:  term
                       {
+                        $$->code = $1->code;
                         $$->result_id = $1->result_id;
                         $$->code = $1->code;
                       }
                       | term MULT multiplicative_expr
                       {
-
+                        ostringstream oss;
+                        oss << $1->code << $3->code;
+                        string x = new_temp();
+                        oss << "* " << x << ", " << $1->result_id << ", " << $3->result_id << endl;
+                        $$->code = oss.str();
+                        $$->result_id = stoi($1->result_id) + stoi($3->result_id);
                       }
-                      | term DIV multiplicative_expr {printf("multiplicative_expr -> term DIV multiplicative_expr \n");}
-                      | term MOD multiplicative_expr {printf("multiplicative_expr -> term MOD multiplicative_expr \n");}
+                      | term DIV multiplicative_expr 
+                      {
+                        ostringstream oss;
+                        oss << $1->code << $3->code;
+                        string x = new_temp();
+                        oss << "/ " << x << ", " << $1->result_id << ", " << $3->result_id << endl;
+                        $$->code = oss.str();
+                        $$->result_id = stoi($1->result_id) + stoi($3->result_id);
+                      }
+                      | term MOD multiplicative_expr 
+                      {
+                        ostringstream oss;
+                        oss << $1->code << $3->code;
+                        string x = new_temp();
+                        oss << "% " << x << ", " << $1->result_id << ", " << $3->result_id << endl;
+                        $$->code = oss.str();
+                        $$->result_id = stoi($1->result_id) + stoi($3->result_id);
+                      }
                       ;
 term:           var
                 {
+                  $$->code = $1->code;
                   $$->result_id = $1->result_id;
                   $$->code = $1->code;
                 }
@@ -256,7 +310,7 @@ term:           var
                   oss << ". " << x << endl;
                   oss << "= " << x << ", " << $1 << endl;
                   $$->code = oss.str();
-                  $$->result_id = $1
+                  $$->result_id = $1;
                 }
                 | L_PAREN expression R_PAREN {printf("term -> L_PAREN expression R_PAREN \n");}
                 | SUB var {printf("term -> SUB var \n");}

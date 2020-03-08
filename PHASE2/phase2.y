@@ -150,7 +150,8 @@ void yyerror(char* s)
 {
   extern int yylineno;	// defined and maintained in lex.c
   extern char *yytext;	// defined and maintained in lex.c
+  extern char currPos;
   
-  printf("%s on line %d at symbol \"%s\"\n", s, yylineno, yytext);
+  printf("%s on line %d at character %d at symbol \"%s\"\n", s, yylineno, currPos, yytext);
   exit(1);
 }

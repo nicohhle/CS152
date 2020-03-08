@@ -69,7 +69,7 @@
 #line 2 "phase3.y"
 	
 #define YY_NO_UNPUT
-#define YYSTYPE char *
+// #define YYSTYPE char *
 #include <stdio.h>
 #include <stdlib.h>
 #include <sstream>

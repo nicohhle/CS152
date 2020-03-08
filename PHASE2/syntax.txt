@@ -1,6 +1,4 @@
-prog_start -> prog
-
-prog -> function prog
+program ->  function program
             | epsilon
 
 function -> FUNCTION identifier SEMICOLON BEGIN_PARAMS declarationloop END_PARAMS BEGIN_LOCALS declarationloop END_LOCALS BEGIN_BODY statementloop END_BODY
@@ -16,28 +14,28 @@ statement -> var ASSIGN expression
             | IF bool_exp THEN statementloop ELSE statementloop ENDIF
             | WHILE bool_exp BEGINLOOP statementloop ENDLOOP
             | DO BEGINLOOP statementloop ENDLOOP WHILE bool_exp
-            | FOR var ASSIGN NUMBER SEMICOLON bool_exp SEMICOLON var ASSIGN expression BEGINLOOP statementloop ENDLOOP
+            | FOR var ASSIGN number SEMICOLON bool_exp SEMICOLON var ASSIGN expression BEGINLOOP statementloop ENDLOOP
             | READ varloop
             | WRITE varloop
             | CONTINUE
             | RETURN expression
 
 statementloop -> statement SEMICOLON statementloop
-            | epsilon
+            | statement SEMICOLON
 
-bool_exp -> relation_and_exp OR relation_and_exp
+bool_exp -> relation_and_exp OR bool_exp
             | relation_and_exp
 
-relation_and_exp -> relation_exp AND relation_exp
-            | relation_exp
+relation_and_exp -> notloop AND relation_and_exp
+            | notloop
 
-relation_exp -> notloop expression comp expression
+relation_exp -> expression comp expression
             | TRUE
             | FALSE
             | L_PAREN bool_exp R_PAREN
 
-notloop -> NOT
-            | epsilon
+notloop -> NOT notloop
+            | relation_exp
 
 comp ->  EQ | NEQ | LT | GT | LTE | GTE
 
@@ -58,17 +56,19 @@ term -> SUB var
         | L_PAREN expression R_PAREN
         | identifier L_PAREN expressionloop R_PAREN
 
+varloop ->  var 
+            | var COMMA varloop
+
+var -> identifier L_SQUARE_BRACKET expression R_SQUARE_BRACKET
+            | identifier
+
 number-> NUMBER
 
 expressionloop-> expression COMMA expressionloop
             | expression
             | epsilon
 
-varloop -> var | var COMMA varloop
-
-var -> identifier L_SQUARE_BRACKET expression R_SQUARE_BRACKET
-            | identifier
-
 identifier -> IDENT
 
-identifierloop -> identifier COMMA identifierloop | identifier
+identifierloop -> identifier COMMA identifierloop 
+                  | identifier

@@ -73,7 +73,7 @@ BADVAR_UND	[a-zA-Z]+[a-zA-Z_0-9]*_+
 {BADVAR_DIG}+		{printf("Error at line %d, column %d: identifier \"%s\" must begin with a letter\n", currLine, currPos, yytext); exit(0);}
 {BADVAR_UND}+		{printf("Error at line %d, column %d: identifier \"%s\" cannot end with an underscore\n", currLine, currPos, yytext); exit(0);}
 
-{VAR}+			{yylval.ident=yytext; currPos += yyleng; return IDENT; }
+{VAR}+			{yylval.ident=strdup(yytext); currPos += yyleng; return IDENT; }
 {DIGIT}+		{yylval.num=atoi(yytext); currPos += yyleng; return NUMBER; }
 {COMMENT}		{currLine++; currPos = 1;}
 [ \t]+        		{currPos += yyleng;}
