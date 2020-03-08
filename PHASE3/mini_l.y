@@ -5,6 +5,7 @@ int yylex(void);
 
 int labelCount = 0;
 int tempCount = 0;
+int paramCount = 0;
 
 struct statement_semval {
   string code;
@@ -17,6 +18,10 @@ struct expression_semval {
 
 struct ident_semval {
   string name;
+};
+
+struct comp_semval {
+  string optr;
 };
 
 
@@ -43,6 +48,7 @@ string new_temp(){
   char*	op_val;
   struct expression_semval* e_semval;
   struct statement_semval* s_semval;
+  struct comp_semval* c_semval;
 }
 
 %start prog_start
@@ -52,12 +58,18 @@ string new_temp(){
 %token <op_val> IDENT
 
 %type <s_semval> statement
+%type <c_semval> comp
 %type <e_semval> var
 %type <e_semval> ident
 %type <e_semval> expression
 %type <e_semval> multiplicative_expr
 %type <e_semval> term
 %type <e_semval> declaration
+%type <e_semval> decInner
+%type <e_semval> funcInnerParams
+%type <e_semval> relation_expr
+%type <e_semval> relation_and_expr
+%type <e_semval> bool_expr
 
 %%
 prog_start:     progInner {printf("prog_start -> progInner \n");}
@@ -65,7 +77,7 @@ prog_start:     progInner {printf("prog_start -> progInner \n");}
 progInner:      function progInner {printf("progInner -> function progInner \n");}
                 | {printf("progInner -> Epsilon \n");}
                 ;
-function:       FUNCTION ident SEMICOLON BEGIN_PARAMS funcInnerOne END_PARAMS BEGIN_LOCALS funcInnerOne END_LOCALS BEGIN_BODY funcInnerTwo END_BODY {printf("function -> function ident SEMICOLON BEGIN_PARAMS funcInnerOne END_PARAMS BEGIN_LOCALS funcInnerOne END_LOCALS BEGIN_BODY funcInnerTwo END_BODYc\n");}
+function:       FUNCTION ident SEMICOLON BEGIN_PARAMS funcInnerParams END_PARAMS BEGIN_LOCALS funcInnerLocals END_LOCALS BEGIN_BODY funcInnerTwo END_BODY {printf("function -> function ident SEMICOLON BEGIN_PARAMS funcInnerOne END_PARAMS BEGIN_LOCALS funcInnerOne END_LOCALS BEGIN_BODY funcInnerTwo END_BODYc\n");}
                 ;
 ident:          IDENT
                 {
@@ -75,16 +87,32 @@ ident:          IDENT
                   $$->result_id = $1;
                 }
                 ;
-funcInnerOne:   declaration SEMICOLON funcInnerOne {printf("funcInnerOne -> declaration SEMICOLON funcInnerOne \n");}
-                | {printf("funcInnerOne -> Epsilon \n");}
-                ;
+funcInnerParams:    declaration SEMICOLON funcInnerParams
+                    {
+                      ostringstream oss;
+                      string x = new_temp();
+                      oss << $1->code;
+                      oss << "= " << $1->result_id << ", $" << paramCount << endl;
+                      oss << ". " << x << endl;
+                      oss << "= " << x << ", " << $1->result_id << endl;
+                      $$->code = oss.str();
+                      paramCount++;
+                    }
+                    |
+                    {
+                      //epsilon case
+                    }
+                    ;
+funcInnerLocals:    declaration SEMICOLON funcInnerLocals {printf("funcInnerOne -> declaration SEMICOLON funcInnerOne \n");}
+                    | {printf("funcInnerOne -> Epsilon \n");}
+                    ;
 funcInnerTwo:   statement SEMICOLON funcInnerTwo {printf("funcInnerTwo -> statement SEMICOLON funcInnerTwo \n");}
                 | {printf("funcInnerTwo -> Epsilon \n");}
                 ;
 declaration:    decInner COLON INTEGER
                 {
-    
-
+                  ostringstream oss;
+                  oss << $1->code;
                 }
                 | decInner COLON ARRAY L_SQUARE_BRACKET NUMBER R_SQUARE_BRACKET OF INTEGER {printf("declaration -> decInner COLON ARRAY L_SQUARE_BRACKET NUMBER R_SQUARE_BRACKET OF INTEGER \n");}
                 ;
@@ -118,13 +146,30 @@ stateInnerOne:  statement SEMICOLON stateInnerOne {printf("stateInnerOne -> stat
 stateInnerTwo:  var {printf("stateInnerTwo -> var \n");}
                 | var COMMA stateInnerTwo {printf("stateInnerTwo -> var COMMA stateInnerTwo \n");}
                 ;
-bool_expr:      relation_and_expr {printf("bool_expr -> relation_and_expr \n");}
+bool_expr:      relation_and_expr
+                {
+                  $$->code = $1->code;
+                  $$->result_id = $1->result_id;
+                }
                 | relation_and_expr OR bool_expr {printf("bool_expr -> relation_and_expr OR bool_expr \n");}
                 ;
-relation_and_expr:  relation_expr {printf("relation_and_expr -> relation_expr \n");}
+relation_and_expr:  relation_expr
+                    {
+                      $$->code = $1->code;
+                      $$->result_id = $1->result_id;
+                    }
                     | relation_expr AND relation_and_expr  {printf("relation_and_expr -> relation_and_expr AND relation_and_expr \n");}
                     ;
-relation_expr:  expression comp expression {printf("relation_expr -> expression comp expression \n");}
+relation_expr:  expression comp expression
+                {
+                  ostringstream oss;
+                  string x = new_temp();
+                  oss << $1->code;
+                  oss << $3->code;
+                  oss << $2->optr << " " << x << ", " << $1->result_id << ", " << $3->result_id << endl;
+                  $$->code = oss.str();
+                  $$->result_id = x;
+                }
                 | TRUE {printf("relation_expr -> TRUE \n");}
                 | FALSE {printf("relation_expr -> FALSE \n");}
                 | L_PAREN bool_expr R_PAREN {printf("relation_expr -> L_PAREN bool_expr R_PAREN \n");}
@@ -133,12 +178,30 @@ relation_expr:  expression comp expression {printf("relation_expr -> expression 
                 | NOT FALSE {printf("relation_expr -> NOT FALSE \n");}
                 | NOT L_PAREN bool_expr R_PAREN {printf("relation_expr -> NOT L_PAREN bool_expr R_PAREN \n");}
                 ;
-comp:           EQ {printf("comp -> EQ \n");}
-                | NEQ {printf("comp -> NEQ \n");}
-                | LT {printf("comp -> LT \n");}
-                | GT {printf("comp -> GT \n");}
-                | LTE {printf("comp -> LTE \n");}
-                | GTE {printf("comp -> GTE \n");}
+comp:           EQ
+                {
+                  $$->optr = "=";
+                }
+                | NEQ
+                {
+                  $$->optr = "!=";
+                }
+                | LT
+                {
+                  $$->optr = "<";
+                }
+                | GT
+                {
+                  $$->optr = ">";
+                }
+                | LTE
+                {
+                  $$->optr = "<=";
+                }
+                | GTE
+                {
+                  $$->optr = ">=";
+                }
                 ;
 expression:     multiplicative_expr
                 {
@@ -165,6 +228,7 @@ expression:     multiplicative_expr
 multiplicative_expr:  term
                       {
                         $$->result_id = $1->result_id;
+                        $$->code = $1->code;
                       }
                       | term MULT multiplicative_expr
                       {
@@ -176,8 +240,17 @@ multiplicative_expr:  term
 term:           var
                 {
                   $$->result_id = $1->result_id;
+                  $$->code = $1->code;
                 }
-                | NUMBER {printf("term -> NUMBER \n");}
+                | NUMBER
+                {
+                  ostringstream oss;
+                  string x = new_temp();
+                  oss << ". " << x << endl;
+                  oss << "= " << x << ", " << $1 << endl;
+                  $$->code = oss.str();
+                  $$->result_id = $1
+                }
                 | L_PAREN expression R_PAREN {printf("term -> L_PAREN expression R_PAREN \n");}
                 | SUB var {printf("term -> SUB var \n");}
                 | SUB NUMBER {printf("term -> SUB NUMBER \n");}
@@ -190,7 +263,13 @@ termInnerOne:   expression COMMA termInnerOne {printf("termInnerOne -> expressio
                 ;
 var:            ident
                 {
-                  $$->result_id = $1->code;
+                  ostringstream oss;
+                  string x = new_temp();
+                  oss << $1->code;
+                  oss << ". " << x << endl;
+                  oss << "= " << x << ", " << $1->result_id << endl;
+                  $$->code = oss.str();
+                  $$->result_id = x;
                 }
                 | ident L_SQUARE_BRACKET expression R_SQUARE_BRACKET
                 {

@@ -146,15 +146,16 @@
 
 #if ! defined YYSTYPE && ! defined YYSTYPE_IS_DECLARED
 typedef union YYSTYPE
-#line 41 "mini_l.y"
+#line 46 "mini_l.y"
 {
   int int_val;
   char*	op_val;
   struct expression_semval* e_semval;
   struct statement_semval* s_semval;
+  struct comp_semval* c_semval;
 }
 /* Line 1529 of yacc.c.  */
-#line 158 "y.tab.h"
+#line 159 "y.tab.h"
 	YYSTYPE;
 # define yystype YYSTYPE /* obsolescent; will be withdrawn */
 # define YYSTYPE_IS_DECLARED 1
