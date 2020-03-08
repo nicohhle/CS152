@@ -2,10 +2,8 @@
 
 %{
 #define YY_NO_UNPUT
-#define api.value.type variant
 #include <stdio.h>
 #include <stdlib.h>
-#include <string.h>
 #include "heading.h"
 int yyerror(char *s);
 int yylex(void);
@@ -13,24 +11,6 @@ int yylex(void);
 int labelCount = 0;
 int tempCount = 0;
 int paramCount = 0;
-
-struct statement_semval {
-  string code;
-};
-
-struct expression_semval {
-  string code;
-  string result_id;
-};
-
-struct ident_semval {
-  string name;
-};
-
-struct comp_semval {
-  string optr;
-};
-
 
 string new_label(){
   string x = "__label__";
@@ -51,18 +31,28 @@ string new_temp(){
 %}
 
 %union{
-  // int int_val;
-  // char*	op_val;
-  struct expression_semval* e_semval;
-  struct statement_semval* s_semval;
-  struct comp_semval* c_semval;
+  int int_val;
+  char*	op_val;
+  struct statement_semval {
+	 string code;
+  } s_semval;
+
+  struct expression_semval {
+	 string code;
+	 string result_id;
+  } e_semval;
+
+  struct comp_semval {
+	 string optr;
+  } c_semval;
+
 }
 
 %start prog_start
 %token FUNCTION BEGIN_PARAMS END_PARAMS BEGIN_LOCALS END_LOCALS BEGIN_BODY END_BODY INTEGER ARRAY OF IF THEN ENDIF ELSE FOR WHILE DO BEGINLOOP ENDLOOP CONTINUE READ WRITE AND OR NOT TRUE FALSE RETURN
 %token SUB ADD MULT DIV MOD EQ NEQ LT GT LTE GTE SEMICOLON COLON COMMA L_PAREN R_PAREN L_SQUARE_BRACKET R_SQUARE_BRACKET ASSIGN
-%token <int> NUMBER
-%token <char*> IDENT
+%token <int_val> NUMBER
+%token <op_val> IDENT
 
 %type <s_semval> prog_start
 %type <s_semval> progInner
