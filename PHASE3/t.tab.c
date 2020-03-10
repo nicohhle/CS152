@@ -610,13 +610,13 @@ static const yytype_int8 yytranslate[] =
   /* YYRLINE[YYN] -- Source line where rule number YYN was defined.  */
 static const yytype_int16 yyrline[] =
 {
-       0,   139,   139,   140,   143,   146,   147,   150,   159,   165,
-     166,   167,   168,   169,   170,   171,   172,   173,   178,   188,
-     195,   201,   202,   209,   210,   213,   225,   230,   235,   242,
-     243,   246,   250,   254,   258,   262,   266,   272,   277,   288,
-     301,   306,   317,   328,   341,   342,   343,   344,   345,   346,
-     351,   365,   366,   369,   370,   373,   376,   386,   396,   402,
-     411,   413
+       0,   139,   139,   141,   146,   160,   161,   164,   173,   179,
+     180,   195,   196,   197,   198,   199,   200,   201,   206,   216,
+     223,   229,   230,   237,   238,   241,   253,   258,   263,   270,
+     271,   274,   278,   282,   286,   290,   294,   300,   305,   316,
+     329,   334,   345,   356,   369,   370,   371,   372,   373,   374,
+     379,   393,   394,   397,   398,   401,   404,   414,   424,   430,
+     439,   441
 };
 #endif
 
@@ -1509,31 +1509,43 @@ yyreduce:
     break;
 
   case 3:
-#line 140 "temp.y"
-            { printf("program -> epsilon\n"); }
-#line 1515 "t.tab.c"
+#line 141 "temp.y"
+          {
+            (yyval.s).code = "";
+          }
+#line 1517 "t.tab.c"
     break;
 
   case 4:
-#line 143 "temp.y"
-                                                                                                                                                            { printf("function -> FUNCTION identifier SEMICOLON BEGIN_PARAMS declarationloop END_PARAMS BEGIN_LOCALS declarationloop END_LOCALS BEGIN_BODY statementloop END_BODY\n"); }
-#line 1521 "t.tab.c"
-    break;
-
-  case 5:
-#line 146 "temp.y"
-                                           { printf("declaration -> identifierloop COLON INTEGER\n"); }
-#line 1527 "t.tab.c"
-    break;
-
-  case 6:
 #line 147 "temp.y"
-                                                                                               { printf("declaration -> identifierloop COLON ARRAY L_SQUARE_BRACKET NUMBER R_SQUARE_BRACKET OF INTEGER\n"); }
+            {
+              ostringstream oss;
+              oss << (yyvsp[-10].e).code << (yyvsp[-7].e).code; 
+
+              oss << "func " << (yyvsp[-10].e).result_id << endl;
+              oss << (yyvsp[-4].e).code << (yyvsp[-1].s).code;
+
+              oss << "endfunc" << endl;
+
+              cout << oss.str();
+            }
 #line 1533 "t.tab.c"
     break;
 
+  case 5:
+#line 160 "temp.y"
+                                           { printf("declaration -> identifierloop COLON INTEGER\n"); }
+#line 1539 "t.tab.c"
+    break;
+
+  case 6:
+#line 161 "temp.y"
+                                                                                               { printf("declaration -> identifierloop COLON ARRAY L_SQUARE_BRACKET NUMBER R_SQUARE_BRACKET OF INTEGER\n"); }
+#line 1545 "t.tab.c"
+    break;
+
   case 7:
-#line 151 "temp.y"
+#line 165 "temp.y"
                   { 
                     ostringstream oss;
                     oss << (yyvsp[-2].e).code << (yyvsp[0].e).code;
@@ -1541,77 +1553,90 @@ yyreduce:
                     (yyval.e).code = strdup(oss.str().c_str());
                     (yyval.e).result_id = "";
                   }
-#line 1545 "t.tab.c"
+#line 1557 "t.tab.c"
     break;
 
   case 8:
-#line 159 "temp.y"
+#line 173 "temp.y"
             { 
               (yyval.e).code = "";
               (yyval.e).result_id = "";
             }
-#line 1554 "t.tab.c"
-    break;
-
-  case 9:
-#line 165 "temp.y"
-                                  { printf("statement -> var ASSIGN expression\n"); }
-#line 1560 "t.tab.c"
-    break;
-
-  case 10:
-#line 166 "temp.y"
-                                                   { printf("statement -> IF bool_exp THEN statementloop ENDIF\n"); }
 #line 1566 "t.tab.c"
     break;
 
-  case 11:
-#line 167 "temp.y"
-                                                                      { printf("statement -> IF bool_exp THEN statementloop ELSE statementloop ENDIF\n"); }
+  case 9:
+#line 179 "temp.y"
+                                  { printf("statement -> var ASSIGN expression\n"); }
 #line 1572 "t.tab.c"
     break;
 
+  case 10:
+#line 181 "temp.y"
+            {
+              string x = new_label();
+              string y = new_label();
+              ostringstream oss;
+
+              oss << (yyvsp[-3].e).code;
+              oss << "?:= " << x << ", " << (yyvsp[-3].e).result_id << endl;
+              oss << ":= y" << endl;
+              oss << ": " << x << endl;
+              oss << (yyvsp[-1].s).code;
+              oss << ": " << y << endl;
+
+              (yyval.s).code = strdup(oss.str().c_str());
+            }
+#line 1591 "t.tab.c"
+    break;
+
+  case 11:
+#line 195 "temp.y"
+                                                                      { printf("statement -> IF bool_exp THEN statementloop ELSE statementloop ENDIF\n"); }
+#line 1597 "t.tab.c"
+    break;
+
   case 12:
-#line 168 "temp.y"
+#line 196 "temp.y"
                                                              { printf("statement -> WHILE bool_exp BEGINLOOP statementloop ENDLOOP\n"); }
-#line 1578 "t.tab.c"
+#line 1603 "t.tab.c"
     break;
 
   case 13:
-#line 169 "temp.y"
+#line 197 "temp.y"
                                                                 { printf("statement -> DO BEGINLOOP statementloop ENDLOOP WHILE bool_exp\n"); }
-#line 1584 "t.tab.c"
+#line 1609 "t.tab.c"
     break;
 
   case 14:
-#line 170 "temp.y"
+#line 198 "temp.y"
                                                                                                                        { printf("statement -> FOR var ASSIGN number SEMICOLON bool_exp SEMICOLON var ASSIGN expression BEGINLOOP statementloop ENDLOOP\n"); }
-#line 1590 "t.tab.c"
+#line 1615 "t.tab.c"
     break;
 
   case 15:
-#line 171 "temp.y"
+#line 199 "temp.y"
                            { printf("statement -> READ varloop\n"); }
-#line 1596 "t.tab.c"
+#line 1621 "t.tab.c"
     break;
 
   case 16:
-#line 172 "temp.y"
+#line 200 "temp.y"
                             { printf("statement -> WRITE varloop\n"); }
-#line 1602 "t.tab.c"
+#line 1627 "t.tab.c"
     break;
 
   case 17:
-#line 174 "temp.y"
+#line 202 "temp.y"
             {
               // std::string x = "continue\n";
               (yyval.s).code = "continue\n"; // "strdup(x.c_str())";
             }
-#line 1611 "t.tab.c"
+#line 1636 "t.tab.c"
     break;
 
   case 18:
-#line 179 "temp.y"
+#line 207 "temp.y"
             { 
               ostringstream oss;
               oss << (yyvsp[0].e).code;
@@ -1619,57 +1644,57 @@ yyreduce:
 
               (yyval.s).code = strdup(oss.str().c_str());
             }
-#line 1623 "t.tab.c"
+#line 1648 "t.tab.c"
     break;
 
   case 19:
-#line 189 "temp.y"
+#line 217 "temp.y"
                 { 
                   ostringstream oss;
                   oss << (yyvsp[-2].s).code << (yyvsp[0].s).code;
 
                   (yyval.s).code = strdup(oss.str().c_str());
                 }
-#line 1634 "t.tab.c"
+#line 1659 "t.tab.c"
     break;
 
   case 20:
-#line 196 "temp.y"
+#line 224 "temp.y"
             { 
               (yyval.s).code = (yyvsp[-1].s).code;
             }
-#line 1642 "t.tab.c"
+#line 1667 "t.tab.c"
     break;
 
   case 21:
-#line 201 "temp.y"
+#line 229 "temp.y"
                                          { printf("bool_exp -> relation_and_exp OR bool_exp\n"); }
-#line 1648 "t.tab.c"
+#line 1673 "t.tab.c"
     break;
 
   case 22:
-#line 203 "temp.y"
+#line 231 "temp.y"
             {
               (yyval.e).code = (yyvsp[0].e).code;
               (yyval.e).result_id = (yyvsp[0].e).result_id;
             }
-#line 1657 "t.tab.c"
+#line 1682 "t.tab.c"
     break;
 
   case 23:
-#line 209 "temp.y"
+#line 237 "temp.y"
                                                  { printf("relation_and_exp -> notloop AND relation_and_exp\n"); }
-#line 1663 "t.tab.c"
+#line 1688 "t.tab.c"
     break;
 
   case 24:
-#line 210 "temp.y"
+#line 238 "temp.y"
                               { printf("relation_and_exp -> notloop\n"); }
-#line 1669 "t.tab.c"
+#line 1694 "t.tab.c"
     break;
 
   case 25:
-#line 214 "temp.y"
+#line 242 "temp.y"
                 {
                   ostringstream oss;
                   std::string x = new_temp();
@@ -1681,107 +1706,107 @@ yyreduce:
                   (yyval.e).code = strdup(oss.str().c_str());
                   (yyval.e).result_id = strdup(x.c_str());
                 }
-#line 1685 "t.tab.c"
+#line 1710 "t.tab.c"
     break;
 
   case 26:
-#line 226 "temp.y"
+#line 254 "temp.y"
                 {
                   (yyval.e).code = "";
                   (yyval.e).result_id = "1";
                 }
-#line 1694 "t.tab.c"
+#line 1719 "t.tab.c"
     break;
 
   case 27:
-#line 231 "temp.y"
+#line 259 "temp.y"
                 {
                   (yyval.e).code = "";
                   (yyval.e).result_id = "0";
                 }
-#line 1703 "t.tab.c"
+#line 1728 "t.tab.c"
     break;
 
   case 28:
-#line 236 "temp.y"
+#line 264 "temp.y"
                 { 
                   (yyval.e).code = (yyvsp[-1].e).code;
                   (yyval.e).result_id = (yyvsp[-1].e).result_id;
                 }
-#line 1712 "t.tab.c"
+#line 1737 "t.tab.c"
     break;
 
   case 29:
-#line 242 "temp.y"
+#line 270 "temp.y"
                         { printf("notloop -> NOT notloop\n"); }
-#line 1718 "t.tab.c"
+#line 1743 "t.tab.c"
     break;
 
   case 30:
-#line 243 "temp.y"
+#line 271 "temp.y"
                            { printf("notloop -> relation_exp\n"); }
-#line 1724 "t.tab.c"
+#line 1749 "t.tab.c"
     break;
 
   case 31:
-#line 247 "temp.y"
+#line 275 "temp.y"
             {
               (yyval.c).optr = "==";
             }
-#line 1732 "t.tab.c"
+#line 1757 "t.tab.c"
     break;
 
   case 32:
-#line 251 "temp.y"
+#line 279 "temp.y"
             {
               (yyval.c).optr = "!=";
             }
-#line 1740 "t.tab.c"
+#line 1765 "t.tab.c"
     break;
 
   case 33:
-#line 255 "temp.y"
+#line 283 "temp.y"
             {
               (yyval.c).optr = "<";
             }
-#line 1748 "t.tab.c"
+#line 1773 "t.tab.c"
     break;
 
   case 34:
-#line 259 "temp.y"
+#line 287 "temp.y"
             {
               (yyval.c).optr = ">";
-            }
-#line 1756 "t.tab.c"
-    break;
-
-  case 35:
-#line 263 "temp.y"
-            {
-              (yyval.c).optr = "<=";
-            }
-#line 1764 "t.tab.c"
-    break;
-
-  case 36:
-#line 267 "temp.y"
-            {
-              (yyval.c).optr = ">=";
-            }
-#line 1772 "t.tab.c"
-    break;
-
-  case 37:
-#line 273 "temp.y"
-            {
-              (yyval.e).code = (yyvsp[0].e).code;
-              (yyval.e).result_id = (yyvsp[0].e).result_id;
             }
 #line 1781 "t.tab.c"
     break;
 
+  case 35:
+#line 291 "temp.y"
+            {
+              (yyval.c).optr = "<=";
+            }
+#line 1789 "t.tab.c"
+    break;
+
+  case 36:
+#line 295 "temp.y"
+            {
+              (yyval.c).optr = ">=";
+            }
+#line 1797 "t.tab.c"
+    break;
+
+  case 37:
+#line 301 "temp.y"
+            {
+              (yyval.e).code = (yyvsp[0].e).code;
+              (yyval.e).result_id = (yyvsp[0].e).result_id;
+            }
+#line 1806 "t.tab.c"
+    break;
+
   case 38:
-#line 278 "temp.y"
+#line 306 "temp.y"
             {
               ostringstream oss;
               std::string x = new_temp();
@@ -1792,11 +1817,11 @@ yyreduce:
 
               (yyval.e).code = strdup(oss.str().c_str());
             }
-#line 1796 "t.tab.c"
+#line 1821 "t.tab.c"
     break;
 
   case 39:
-#line 289 "temp.y"
+#line 317 "temp.y"
             {
               ostringstream oss;
               std::string x = new_temp();
@@ -1807,20 +1832,20 @@ yyreduce:
 
               (yyval.e).code = strdup(oss.str().c_str());
             }
-#line 1811 "t.tab.c"
+#line 1836 "t.tab.c"
     break;
 
   case 40:
-#line 302 "temp.y"
+#line 330 "temp.y"
                             {
                               (yyval.e).code = (yyvsp[0].e).code;
                               (yyval.e).result_id = (yyvsp[0].e).result_id;
                             }
-#line 1820 "t.tab.c"
+#line 1845 "t.tab.c"
     break;
 
   case 41:
-#line 307 "temp.y"
+#line 335 "temp.y"
                             {
                               ostringstream oss;
                               std::string x = new_temp();
@@ -1831,11 +1856,11 @@ yyreduce:
 
                               (yyval.e).code = strdup(oss.str().c_str());
                             }
-#line 1835 "t.tab.c"
+#line 1860 "t.tab.c"
     break;
 
   case 42:
-#line 318 "temp.y"
+#line 346 "temp.y"
                             {
                               ostringstream oss;
                               std::string x = new_temp();
@@ -1846,11 +1871,11 @@ yyreduce:
 
                               (yyval.e).code = strdup(oss.str().c_str());
                             }
-#line 1850 "t.tab.c"
+#line 1875 "t.tab.c"
     break;
 
   case 43:
-#line 329 "temp.y"
+#line 357 "temp.y"
                             {
                               ostringstream oss;
                               std::string x = new_temp();
@@ -1861,50 +1886,50 @@ yyreduce:
 
                               (yyval.e).code = strdup(oss.str().c_str());
                             }
-#line 1865 "t.tab.c"
+#line 1890 "t.tab.c"
     break;
 
   case 44:
-#line 341 "temp.y"
+#line 369 "temp.y"
                 { printf("term -> SUB var\n"); }
-#line 1871 "t.tab.c"
+#line 1896 "t.tab.c"
     break;
 
   case 45:
-#line 342 "temp.y"
+#line 370 "temp.y"
                      { printf("term -> SUB number\n"); }
-#line 1877 "t.tab.c"
+#line 1902 "t.tab.c"
     break;
 
   case 46:
-#line 343 "temp.y"
+#line 371 "temp.y"
                                          { printf("term -> SUB L_PAREN expression R_PAREN\n"); }
-#line 1883 "t.tab.c"
+#line 1908 "t.tab.c"
     break;
 
   case 47:
-#line 344 "temp.y"
+#line 372 "temp.y"
               { printf("term -> var\n"); }
-#line 1889 "t.tab.c"
+#line 1914 "t.tab.c"
     break;
 
   case 48:
-#line 345 "temp.y"
+#line 373 "temp.y"
                  { printf("term -> number\n"); }
-#line 1895 "t.tab.c"
+#line 1920 "t.tab.c"
     break;
 
   case 49:
-#line 347 "temp.y"
+#line 375 "temp.y"
         {
           (yyval.e).code = (yyvsp[-1].e).code;
           (yyval.e).result_id = (yyvsp[-1].e).result_id;
         }
-#line 1904 "t.tab.c"
+#line 1929 "t.tab.c"
     break;
 
   case 50:
-#line 352 "temp.y"
+#line 380 "temp.y"
         {
           ostringstream oss;
           std::string x = new_temp();
@@ -1916,41 +1941,41 @@ yyreduce:
 
           (yyval.e).code = strdup(oss.str().c_str());
         }
-#line 1920 "t.tab.c"
+#line 1945 "t.tab.c"
     break;
 
   case 51:
-#line 365 "temp.y"
+#line 393 "temp.y"
               { printf("varloop -> var\n"); }
-#line 1926 "t.tab.c"
+#line 1951 "t.tab.c"
     break;
 
   case 52:
-#line 366 "temp.y"
+#line 394 "temp.y"
                               { printf("varloop -> var COMMA varloop\n"); }
-#line 1932 "t.tab.c"
+#line 1957 "t.tab.c"
     break;
 
   case 53:
-#line 369 "temp.y"
+#line 397 "temp.y"
                                                                   { printf("var -> identifier L_SQUARE_BRACKET expression R_SQUARE_BRACKET\n"); }
-#line 1938 "t.tab.c"
+#line 1963 "t.tab.c"
     break;
 
   case 54:
-#line 370 "temp.y"
+#line 398 "temp.y"
                        { printf("var -> identifier\n"); }
-#line 1944 "t.tab.c"
+#line 1969 "t.tab.c"
     break;
 
   case 55:
-#line 373 "temp.y"
+#line 401 "temp.y"
                { printf("number -> NUMBER %d\n", yylval.int_val); }
-#line 1950 "t.tab.c"
+#line 1975 "t.tab.c"
     break;
 
   case 56:
-#line 377 "temp.y"
+#line 405 "temp.y"
                   {
                     ostringstream oss;
                     oss << (yyvsp[-2].e).code;
@@ -1960,11 +1985,11 @@ yyreduce:
                     (yyval.e).code = strdup(oss.str().c_str());
                     (yyval.e).result_id = "";
                   }
-#line 1964 "t.tab.c"
+#line 1989 "t.tab.c"
     break;
 
   case 57:
-#line 387 "temp.y"
+#line 415 "temp.y"
                   {
                     ostringstream oss;
                     oss << (yyvsp[0].e).code;
@@ -1973,46 +1998,46 @@ yyreduce:
                     (yyval.e).code = strdup(oss.str().c_str());
                     (yyval.e).result_id = "";
                   }
-#line 1977 "t.tab.c"
+#line 2002 "t.tab.c"
     break;
 
   case 58:
-#line 396 "temp.y"
+#line 424 "temp.y"
                   {
                     (yyval.e).code = "";
                     (yyval.e).result_id = "";
                   }
-#line 1986 "t.tab.c"
+#line 2011 "t.tab.c"
     break;
 
   case 59:
-#line 403 "temp.y"
+#line 431 "temp.y"
             { 
               ostringstream oss;
               oss << (yyvsp[0].op_val) << endl;
               (yyval.e).code = strdup(oss.str().c_str());
               (yyval.e).result_id = (yyvsp[0].op_val);
             }
-#line 1997 "t.tab.c"
+#line 2022 "t.tab.c"
     break;
 
   case 60:
-#line 412 "temp.y"
+#line 440 "temp.y"
                   { printf("identifierloop -> identifier COMMA identifierloop\n"); }
-#line 2003 "t.tab.c"
+#line 2028 "t.tab.c"
     break;
 
   case 61:
-#line 414 "temp.y"
+#line 442 "temp.y"
                   { 
                     (yyval.e).code = "";
                     (yyval.e).result_id = (yyvsp[0].e).result_id;
                   }
-#line 2012 "t.tab.c"
+#line 2037 "t.tab.c"
     break;
 
 
-#line 2016 "t.tab.c"
+#line 2041 "t.tab.c"
 
       default: break;
     }
@@ -2244,7 +2269,7 @@ yyreturn:
 #endif
   return yyresult;
 }
-#line 420 "temp.y"
+#line 448 "temp.y"
 
 
 void yyerror(const char* s) {

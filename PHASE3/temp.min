@@ -6,5 +6,5 @@ beginlocals
 endlocals
 beginbody
   n := 1;
-  return n;
+  write n;
 endbody

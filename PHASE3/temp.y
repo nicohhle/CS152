@@ -137,10 +137,24 @@ string new_temp(){
 
 %%
 program:     function program { printf("program -> function program\n"); }
-          | { printf("program -> epsilon\n"); }
+          | 
+          {
+            $$.code = "";
+          }
 			    ;
 
-function:   FUNCTION identifier SEMICOLON BEGIN_PARAMS declarationloop END_PARAMS BEGIN_LOCALS declarationloop END_LOCALS BEGIN_BODY statementloop END_BODY { printf("function -> FUNCTION identifier SEMICOLON BEGIN_PARAMS declarationloop END_PARAMS BEGIN_LOCALS declarationloop END_LOCALS BEGIN_BODY statementloop END_BODY\n"); }
+function:   FUNCTION identifier SEMICOLON BEGIN_PARAMS declarationloop END_PARAMS BEGIN_LOCALS declarationloop END_LOCALS BEGIN_BODY statementloop END_BODY 
+            {
+              ostringstream oss;
+              oss << $2.code << $5.code; 
+
+              oss << "func " << $2.result_id << endl;
+              oss << $8.code << $11.code;
+
+              oss << "endfunc" << endl;
+
+              cout << oss.str();
+            }
             ;
 
 declaration:  identifierloop COLON INTEGER { printf("declaration -> identifierloop COLON INTEGER\n"); }
@@ -163,7 +177,21 @@ declarationloop:  declaration SEMICOLON declarationloop
             ;
 
 statement:  var ASSIGN expression { printf("statement -> var ASSIGN expression\n"); }
-            | IF bool_exp THEN statementloop ENDIF { printf("statement -> IF bool_exp THEN statementloop ENDIF\n"); }
+            | IF bool_exp THEN statementloop ENDIF 
+            {
+              string x = new_label();
+              string y = new_label();
+              ostringstream oss;
+
+              oss << $2.code;
+              oss << "?:= " << x << ", " << $2.result_id << endl;
+              oss << ":= y" << endl;
+              oss << ": " << x << endl;
+              oss << $4.code;
+              oss << ": " << y << endl;
+
+              $$.code = strdup(oss.str().c_str());
+            }
             | IF bool_exp THEN statementloop ELSE statementloop ENDIF { printf("statement -> IF bool_exp THEN statementloop ELSE statementloop ENDIF\n"); }
             | WHILE bool_exp BEGINLOOP statementloop ENDLOOP { printf("statement -> WHILE bool_exp BEGINLOOP statementloop ENDLOOP\n"); }
             | DO BEGINLOOP statementloop ENDLOOP WHILE bool_exp { printf("statement -> DO BEGINLOOP statementloop ENDLOOP WHILE bool_exp\n"); }
