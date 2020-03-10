@@ -7,6 +7,7 @@
 #include <cstring>
 #include <stdlib.h>
 #include "y.tab.h"
+#include "t.tab.h"
 #include "heading.h"
 
 using namespace std;
@@ -276,7 +277,7 @@ relation_expr:  expression comp expression
                 ;
 comp:           EQ
                 {
-                  $$.optr = "=";
+                  $$.optr = "==";
                 }
                 | NEQ
                 {
@@ -416,4 +417,3 @@ var:            ident
 void yyerror(const char* s) {
    printf("ERROR: %s at symbol \"%s\" on line %d, col %d\n", s, yytext, currLine, currPos);
 }
-

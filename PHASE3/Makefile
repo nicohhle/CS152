@@ -7,3 +7,11 @@ clean:
 	rm -f lex.yy.c y.tab.* y.output *.o parser
 
 CFLAGS = -g -Wall -ansi -pedantic
+
+parsetemp: mini_l.lex temp.y
+	bison -v -d --file-prefix=t temp.y
+	flex mini_l.lex
+	g++ -o parser t.tab.c lex.yy.c -ll -g
+
+cleantemp:
+	rm -f lex.yy.c t.tab.* t.output *.o parser
