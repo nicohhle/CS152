@@ -102,12 +102,14 @@ extern int yydebug;
 
 union YYSTYPE
 {
-#line 44 "mini_l.y" /* yacc.c:1909  */
+#line 43 "mini_l.y" /* yacc.c:1909  */
 
   int int_val;
   char*	op_val;
+  
   struct statement_semval {
-	 char* code;
+	 char *code;
+	 char *result_id;
   } s;
 
   struct expression_semval {
@@ -120,7 +122,7 @@ union YYSTYPE
   } c;
 
 
-#line 124 "y.tab.h" /* yacc.c:1909  */
+#line 126 "y.tab.h" /* yacc.c:1909  */
 };
 
 typedef union YYSTYPE YYSTYPE;

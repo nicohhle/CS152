@@ -26,17 +26,15 @@ int paramCount = 0;
 
 string new_label(){
   string x = "__label__";
-  labelCount += 1;
-
   x += to_string(labelCount);
+  labelCount += 1;
   return x;
 }
 
 string new_temp(){
   string x = "__temp__";
-  tempCount += 1;
-
   x += to_string(tempCount);
+  tempCount += 1;
   return x;
 }
 
@@ -45,8 +43,10 @@ string new_temp(){
 %union{
   int int_val;
   char*	op_val;
+  
   struct statement_semval {
-	 char* code;
+	 char *code;
+	 char *result_id;
   } s;
 
   struct expression_semval {
@@ -66,28 +66,11 @@ string new_temp(){
 %token <int_val> NUMBER
 %token <op_val> IDENT
 
-%type <s> prog_start
-%type <s> progInner
-%type <s> function
-%type <s> funcInnerTwo
-%type <s> funcInnerParams
-%type <s> funcInnerLocals
-%type <s> statement
+%type <s> prog_start progInner function funcInnerLocals funcInnerTwo funcInnerParams statement stateInnerOne stateInnerTwo
+%type <e> bool_expr var ident expression multiplicative_expr term declaration decInner relation_expr relation_and_expr
 %type <c> comp
-%type <s> stateInnerOne
-%type <s> stateInnerTwo
-%type <e> bool_expr
-%type <e> var
-%type <e> ident
-%type <e> expression
-%type <e> multiplicative_expr
-%type <e> term
-%type <e> declaration
-%type <e> decInner
-%type <e> relation_expr
-%type <e> relation_and_expr
-
 %%
+
 prog_start:     progInner {
                   cout << $1.code;
                 }
@@ -104,26 +87,22 @@ progInner:      function progInner {
 function:       FUNCTION ident SEMICOLON BEGIN_PARAMS funcInnerParams END_PARAMS BEGIN_LOCALS funcInnerLocals END_LOCALS BEGIN_BODY funcInnerTwo END_BODY 
                 {
                   ostringstream oss;
-                  oss << "func " << $2.code << $5.code << $8.code << $11.code;
+                  oss << "func " << $2.result_id << endl;
+                  oss << $5.code << $8.code << $11.code;
                   $$.code = strdup(oss.str().c_str());
                 }
                 ;
 ident:          IDENT
                 {
                   ostringstream oss;
-                  oss << $1 << endl;
-                  $$.code = strdup(oss.str().c_str());
                   $$.result_id = $1;
                 }
                 ;
 funcInnerParams:    declaration SEMICOLON funcInnerParams
                     {
                       ostringstream oss;
-                      string x = new_temp();
                       oss << $1.code;
                       oss << "= " << $1.result_id << ", $" << paramCount << endl;
-                      oss << ". " << x << endl;
-                      oss << "= " << x << ", " << $1.result_id << endl;
                       $$.code = strdup(oss.str().c_str());
                       paramCount++;
                     }
@@ -152,7 +131,9 @@ funcInnerTwo:   statement SEMICOLON funcInnerTwo
                 }
                 | 
                 {
-                  $$.code = "";
+				  ostringstream oss;
+				  oss << "endfunc" << endl;
+				  $$.code = strdup(oss.str().c_str());
                 }
                 ;
 declaration:    decInner COLON INTEGER
@@ -196,12 +177,14 @@ statement:      var ASSIGN expression
                 | IF bool_expr THEN stateInnerOne ELSE stateInnerOne ENDIF {printf("statement . IF bool_exp THEN stateInnerOne ELSE stateInnerOne ENDIF \n");}
                 | WHILE bool_expr BEGINLOOP stateInnerOne ENDLOOP {printf("statement . WHILE bool_expr BEGINLOOP stateInnerOne ENDLOOP \n");}
                 | DO BEGINLOOP stateInnerOne ENDLOOP WHILE bool_expr {printf("statement . DO BEGINLOOP stateInnerOne ENDLOOP WHILE bool_expr \n");}
-                | FOR var ASSIGN NUMBER SEMICOLON bool_expr SEMICOLON var ASSIGN expression BEGINLOOP stateInnerOne ENDLOOP {printf("statement . FOR var ASSIGN NUMBER SEMICOLON bool_expr SEMICOLON var ASSIGN expression BEGINLOOP stateInnerOne ENDLOOP \n");}
+                | FOR var ASSIGN NUMBER SEMICOLON bool_expr SEMICOLON var ASSIGN expression BEGINLOOP stateInnerOne ENDLOOP 
+                {}
                 | READ stateInnerTwo 
                 {
-                  // ostringstream oss;
-                  // oss << $2.code;
-                  // oss << ".< " << $2.resul
+                  ostringstream oss;
+                  oss << ".< " << $2.result_id << endl;
+                  $$.code = strdup(oss.str().c_str());
+                  $$.result_id = $2.result_id;
                 }
                 | WRITE stateInnerTwo 
                 {printf("statement . write stateInnerTwo \n");}
@@ -224,7 +207,11 @@ statement:      var ASSIGN expression
 stateInnerOne:  statement SEMICOLON stateInnerOne {printf("stateInnerOne . statement SEMICOLON stateInnerOne \n");}
                 | statement SEMICOLON {printf("stateInnerOne . statement SEMICOLON \n");}
                 ;
-stateInnerTwo:  var {printf("stateInnerTwo . var \n");}
+stateInnerTwo:  var 
+				{
+				  $$.code = $1.code;
+				  $$.result_id = $1.result_id;
+				}
                 | var COMMA stateInnerTwo {printf("stateInnerTwo . var COMMA stateInnerTwo \n");}
                 ;
 bool_expr:      relation_and_expr
@@ -252,7 +239,7 @@ relation_and_expr:  relation_expr
                       ostringstream oss;
                       oss << $1.code << $3.code;
                       string x = new_temp();
-                      oss << "&& " << x << ", " << $1.result_id << ", " << $3.result_id;
+                      oss << "&& " << x << ", " << $1.result_id << ", " << $3.result_id << endl;
                       $$.code = strdup(oss.str().c_str());
                       $$.result_id = strdup(x.c_str());
                     }
@@ -261,15 +248,18 @@ relation_expr:  expression comp expression
                 {
                   ostringstream oss;
                   string x = new_temp();
-                  oss << $1.code;
-                  oss << $3.code;
+                  oss << $1.code << $3.code;
                   oss << $2.optr << " " << x << ", " << $1.result_id << ", " << $3.result_id << endl;
                   $$.code = strdup(oss.str().c_str());
                   $$.result_id = strdup(x.c_str());
                 }
                 | TRUE {printf("relation_expr . TRUE \n");}
                 | FALSE {printf("relation_expr . FALSE \n");}
-                | L_PAREN bool_expr R_PAREN {printf("relation_expr . L_PAREN bool_expr R_PAREN \n");}
+                | L_PAREN bool_expr R_PAREN 
+                {
+				  $$.code = $2.code;
+				  $$.result_id = $2.result_id;
+				}
                 | NOT expression comp expression {printf("relation_expr . NOT expression comp expression \n");}
                 | NOT TRUE {printf("relation_expr . NOT TRUE \n");}
                 | NOT FALSE {printf("relation_expr . NOT FALSE \n");}
@@ -334,7 +324,7 @@ multiplicative_expr:  term
                         oss << ". " << x << endl;
                         oss << "= " << x << ", " << $1.result_id << endl;
                         $$.code = strdup(oss.str().c_str());
-                        $$.result_id = strdup(x.c_str());
+                        $$.result_id = $1.result_id;
                       }
                       | term MULT multiplicative_expr
                       {
@@ -377,11 +367,6 @@ term:           var
                   ostringstream oss;
                   oss << $1 << endl;
                   $$.code = strdup(oss.str().c_str());
-                  
-                  // string x = new_temp();
-                  // oss << ". " << x << endl;
-                  // oss << "= " << x << ", " << $1 << endl;
-                  // $$.code = strdup(oss.str().c_str());
                   $$.result_id = strdup(to_string($1).c_str());
                 }
                 | L_PAREN expression R_PAREN {printf("term . L_PAREN expression R_PAREN \n");}
@@ -397,12 +382,7 @@ termInnerOne:   expression COMMA termInnerOne {printf("termInnerOne . expression
 var:            ident
                 {
                   ostringstream oss;
-                  // string x = new_temp();
-                  // oss << $1.code;
                   oss << ". " << $1.result_id << endl;
-                  // oss << "= " << x << ", " << $1.result_id << endl;
-                  // $$.code = strdup(oss.str().c_str());
-                  // $$.result_id = strdup(x.c_str());
                   $$.code = strdup(oss.str().c_str());
                   $$.result_id = $1.result_id;
                 }
