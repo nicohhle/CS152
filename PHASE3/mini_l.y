@@ -107,7 +107,9 @@ funcInnerParams:    declaration SEMICOLON funcInnerParams
                     }
                     |
                     {
-                      $$.code = "";
+		      ostringstream oss;
+		      oss << "param " << $$.result_id << endl;
+		      $$.code = strdup(oss.str().c_str());
                     }
                     ;
 funcInnerLocals:    declaration SEMICOLON funcInnerLocals 
@@ -369,7 +371,6 @@ multiplicative_expr:  term
                       ;
 term:           var
                 {
-                  $$.code ="";
                   $$.result_id = $1.result_id;
                 }
                 | NUMBER
@@ -406,10 +407,7 @@ termInnerOne:   expression COMMA termInnerOne {printf("termInnerOne . expression
 		}
                 ;
 var:            ident
-                {
-                  ostringstream oss;
-                  oss << ". " << $1.result_id << endl;
-                  $$.code = strdup(oss.str().c_str());
+                { $$.code = "";
                   $$.result_id = $1.result_id;
                 }
                 | ident L_SQUARE_BRACKET expression R_SQUARE_BRACKET
