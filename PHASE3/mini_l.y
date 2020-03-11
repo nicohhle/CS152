@@ -67,7 +67,7 @@ string new_temp(){
 %token <op_val> IDENT
 
 %type <s> prog_start progInner function funcInnerLocals funcInnerTwo funcInnerParams statement stateInnerOne stateInnerTwo
-%type <e> bool_expr var ident expression multiplicative_expr term declaration decInner relation_expr relation_and_expr
+%type <e> bool_expr var ident termInnerOne expression multiplicative_expr term declaration decInner relation_expr relation_and_expr
 %type <c> comp
 %%
 
@@ -94,7 +94,6 @@ function:       FUNCTION ident SEMICOLON BEGIN_PARAMS funcInnerParams END_PARAMS
                 ;
 ident:          IDENT
                 {
-                  ostringstream oss;
                   $$.result_id = $1;
                 }
                 ;
@@ -187,7 +186,12 @@ statement:      var ASSIGN expression
                   $$.result_id = $2.result_id;
                 }
                 | WRITE stateInnerTwo 
-                {printf("statement . write stateInnerTwo \n");}
+                {
+		  ostringstream oss;
+		  oss << ".> " << $2.result_id << endl;
+ 		  $$.code = strdup(oss.str().c_str());
+	 	  $$.result_id = $2.result_id;
+		}
                 | CONTINUE 
                 {
                   ostringstream oss;
@@ -205,7 +209,11 @@ statement:      var ASSIGN expression
                 }
                 ;
 stateInnerOne:  statement SEMICOLON stateInnerOne {printf("stateInnerOne . statement SEMICOLON stateInnerOne \n");}
-                | statement SEMICOLON {printf("stateInnerOne . statement SEMICOLON \n");}
+                | statement SEMICOLON 
+		{
+		  $$.code = $1.code;
+		  $$.result_id = $1.result_id;
+		}
                 ;
 stateInnerTwo:  var 
 				{
@@ -248,7 +256,7 @@ relation_expr:  expression comp expression
                 {
                   ostringstream oss;
                   string x = new_temp();
-                  oss << $1.code << $3.code;
+		  oss << $1.code << $3.code;
                   oss << ". " << x << endl;
                   oss << $2.optr << " " << x << ", " << $1.result_id << ", " << $3.result_id << endl;
                   $$.code = strdup(oss.str().c_str());
@@ -322,6 +330,7 @@ multiplicative_expr:  term
                       {
                         ostringstream oss;
                         string x = new_temp();
+			oss << $1.code;
                         oss << ". " << x << endl;
                         oss << "= " << x << ", " << $1.result_id << endl;
                         $$.code = strdup(oss.str().c_str());
@@ -360,25 +369,41 @@ multiplicative_expr:  term
                       ;
 term:           var
                 {
-                  $$.code = $1.code;
+                  $$.code ="";
                   $$.result_id = $1.result_id;
                 }
                 | NUMBER
                 {
-                  ostringstream oss;
-                  oss << $1 << endl;
-                  $$.code = strdup(oss.str().c_str());
+		  $$.code = "";		 	
                   $$.result_id = strdup(to_string($1).c_str());
                 }
-                | L_PAREN expression R_PAREN {printf("term . L_PAREN expression R_PAREN \n");}
+                | L_PAREN expression R_PAREN 
+                {
+		  $$.code = $2.code;
+		  $$.result_id = $2.result_id;
+		}
                 | SUB var {printf("term . SUB var \n");}
                 | SUB NUMBER {printf("term . SUB NUMBER \n");}
                 | SUB L_PAREN expression R_PAREN {printf("term . SUB L_PAREN expression R_PAREN \n");}
-                | ident L_PAREN termInnerOne R_PAREN {printf("term . ident L_PAREN termInnerOne R_PAREN \n");}
+                | ident L_PAREN termInnerOne R_PAREN 
+		{
+	          ostringstream oss;
+		  oss << $3.code;
+		  $$.code = strdup(oss.str().c_str());
+		  $$.result_id = $3.result_id;
+		}
                 ;
 termInnerOne:   expression COMMA termInnerOne {printf("termInnerOne . expression COMMA termInnerOne \n");}
-                | expression {printf("termInnerOne . expression \n");}
-                | {printf("termInnerOne . Epsilon \n");}
+                | expression 
+		{
+		  $$.code = $1.code;
+                  $$.result_id = $1.result_id;
+		}
+                | 
+		{
+		  $$.code = "";
+		  $$.result_id = "";
+		}
                 ;
 var:            ident
                 {
