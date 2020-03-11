@@ -167,7 +167,7 @@ statement:      var ASSIGN expression
 
                   oss << $2.code;
                   oss << "?:= " << l << ", " << $2.result_id << endl;
-                  oss << ":= m" << endl;
+                  oss << ":= " << m << endl;
                   oss << ": " << l << endl;
                   oss << $4.code;
                   oss << ": " << m << endl;
@@ -249,13 +249,15 @@ relation_expr:  expression comp expression
                   ostringstream oss;
                   string x = new_temp();
                   oss << $1.code << $3.code;
+                  oss << ". " << x << endl;
                   oss << $2.optr << " " << x << ", " << $1.result_id << ", " << $3.result_id << endl;
                   $$.code = strdup(oss.str().c_str());
                   $$.result_id = strdup(x.c_str());
                 }
                 | TRUE {printf("relation_expr . TRUE \n");}
                 | FALSE {printf("relation_expr . FALSE \n");}
-                | L_PAREN bool_expr R_PAREN 
+                | 
+                L_PAREN bool_expr R_PAREN 
                 {
 				  $$.code = $2.code;
 				  $$.result_id = $2.result_id;
@@ -320,11 +322,10 @@ multiplicative_expr:  term
                       {
                         ostringstream oss;
                         string x = new_temp();
-                        oss << $1.code;
                         oss << ". " << x << endl;
                         oss << "= " << x << ", " << $1.result_id << endl;
                         $$.code = strdup(oss.str().c_str());
-                        $$.result_id = $1.result_id;
+                        $$.result_id = strdup(x.c_str());
                       }
                       | term MULT multiplicative_expr
                       {
