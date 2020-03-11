@@ -226,7 +226,18 @@ statementloop:  statement SEMICOLON statementloop
             }
             ;
 
-bool_exp:   relation_and_exp OR bool_exp { printf("bool_exp -> relation_and_exp OR bool_exp\n"); }
+bool_exp:   relation_and_exp OR bool_exp 
+            {
+              ostringstream oss;
+              std::string x = new_temp();
+
+              oss << $1.code << $3.code;
+              oss << ". " << x << endl;
+              oss << "|| " << x << ", " << $1.result_id << ", " << $3.result_id << endl;
+
+              $$.code = strdup(oss.str().c_str());
+              $$.result_id = strdup(x.c_str());
+            }
             | relation_and_exp 
             {
               $$.code = $1.code;
@@ -234,8 +245,23 @@ bool_exp:   relation_and_exp OR bool_exp { printf("bool_exp -> relation_and_exp 
             }
             ;
 
-relation_and_exp:   notloop AND relation_and_exp { printf("relation_and_exp -> notloop AND relation_and_exp\n"); }
-                    | notloop { printf("relation_and_exp -> notloop\n"); }
+relation_and_exp:   notloop AND relation_and_exp 
+                    {
+                      ostringstream oss;
+                      std::string x = new_temp();
+
+                      oss << $1.code << $3.code;
+                      oss << ". " << x << endl;
+                      oss << "&& " << x << ", " << $1.result_id << ", " << $3.result_id << endl;
+
+                      $$.code = strdup(oss.str().c_str());
+                      $$.result_id = strdup(x.c_str());
+                    }
+                    | notloop 
+                    {
+                      $$.code = $1.code;
+                      $$.result_id = $1.result_id;
+                    }
                     ;
 
 relation_exp:   expression comp expression 
@@ -367,10 +393,29 @@ multiplicative_expression:  term
                             ;
 
 term:   SUB var { printf("term -> SUB var\n"); }
-        | SUB number { printf("term -> SUB number\n"); }
-        | SUB L_PAREN expression R_PAREN { printf("term -> SUB L_PAREN expression R_PAREN\n"); }
+        | SUB number 
+        {
+          ostringstream oss;
+          oss << "-" << $2.result_id << endl;
+
+          $$.code = "";
+          $$.result_id = strdup(oss.str().c_str());
+        }
+        | SUB L_PAREN expression R_PAREN 
+        {
+          ostringstream oss;
+          oss << $3.code;
+          oss << "* " << $3.result_id << ", " << $3.result_id << ", -1" << endl;
+
+          $$.code = strdup(oss.str().c_str());
+          $$.result_id = $3.result_id;
+        }
         | var { printf("term -> var\n"); }
-        | number { printf("term -> number\n"); }
+        | number 
+        {
+          $$.code = "";
+          $$.result_id = $1.result_id;
+        }
         | L_PAREN expression R_PAREN 
         {
           $$.code = $2.code;
@@ -398,7 +443,11 @@ var:      identifier L_SQUARE_BRACKET expression R_SQUARE_BRACKET { printf("var 
           | identifier { printf("var -> identifier\n"); }
           ;
 
-number: NUMBER { printf("number -> NUMBER %d\n", yylval.int_val); }
+number: NUMBER 
+        {
+          $$.code = "";		 	
+          $$.result_id = strdup(to_string($1).c_str());
+        }
         ;
 
 expressionloop:   expression COMMA expressionloop 
@@ -436,14 +485,14 @@ identifier: IDENT
             }
             ;
 
-identifierloop:   identifier COMMA identifierloop 
-                  { printf("identifierloop -> identifier COMMA identifierloop\n"); } 
-                  | identifier 
-                  { 
-                    $$.code = "";
-                    $$.result_id = $1.result_id;
-                  }
-                  ;
+identifierloop: identifier COMMA identifierloop 
+                { printf("identifierloop -> identifier COMMA identifierloop\n"); } 
+                | identifier 
+                { 
+                  $$.code = "";
+                  $$.result_id = $1.result_id;
+                }
+                ;
 
 %%
 
