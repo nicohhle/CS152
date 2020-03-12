@@ -3,8 +3,10 @@ beginparams
 endparams
 beginlocals
 n : integer;
-i, j : integer;
+a : array[1000] of integer;
+i,j : integer;
 x, sqrt_n : integer;
 endlocals
 beginbody
+  x := (x+n / x) / 2;
 endbody

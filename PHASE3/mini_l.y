@@ -172,6 +172,7 @@ declaration:    decInner COLON INTEGER
 				  ostringstream oss;
 				  oss << ".[] " << $1.result_id << ", " << $5 << endl;
 				  $$.arr_size = strdup(to_string($5).c_str());
+ 				  $$.code = strdup(oss.str().c_str());
 				}
                 ;
 decInner:       ident 
@@ -208,7 +209,10 @@ statement:      var ASSIGN expression
                   $$.code = strdup(oss.str().c_str());
                 }
                 | IF bool_expr THEN stateInnerOne ELSE stateInnerOne ENDIF {printf("statement . IF bool_exp THEN stateInnerOne ELSE stateInnerOne ENDIF \n");}
-                | WHILE bool_expr BEGINLOOP stateInnerOne ENDLOOP {printf("statement . WHILE bool_expr BEGINLOOP stateInnerOne ENDLOOP \n");}
+                | WHILE bool_expr BEGINLOOP stateInnerOne ENDLOOP
+		{
+		  
+		}
                 | DO BEGINLOOP stateInnerOne ENDLOOP WHILE bool_expr {printf("statement . DO BEGINLOOP stateInnerOne ENDLOOP WHILE bool_expr \n");}
                 | FOR var ASSIGN NUMBER SEMICOLON bool_expr SEMICOLON var ASSIGN expression BEGINLOOP stateInnerOne ENDLOOP 
                 {}
