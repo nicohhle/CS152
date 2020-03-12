@@ -152,12 +152,17 @@ declaration:    decInner COLON INTEGER
 				    char curr = $1.result_id[0];
 				    int count = 0;
 				    ostringstream oss;
-				    while (count != strlen($1.result_id)){
-					  if (curr != '#'){
-					    oss << ". " << curr << endl;
-					  }
-					  count += 1;
+				    while (count < strlen($1.result_id)){
+					  ostringstream lss;
 					  curr = $1.result_id[count];
+
+					  while ((curr != '#') && count < strlen($1.result_id)){
+					    lss << curr;
+					    count += 1;
+					    curr = $1.result_id[count];
+					  }
+					  oss << ". " << lss.str().c_str() << endl;
+					  count += 1;
 					}
 					$$.code = strdup(oss.str().c_str());
 				  }
