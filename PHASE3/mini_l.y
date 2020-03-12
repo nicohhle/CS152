@@ -94,6 +94,7 @@ function:       FUNCTION ident SEMICOLON BEGIN_PARAMS funcInnerParams END_PARAMS
                 ;
 ident:          IDENT
                 {
+				  $$.code = "";
                   $$.result_id = $1;
                 }
                 ;
@@ -107,15 +108,8 @@ funcInnerParams:    declaration SEMICOLON funcInnerParams
                     }
                     |
                     {
-					  if (strlen($$.code) == 1){
-						$$.code = "";
-						$$.result_id = "";
-					  }
-					  else {
-						ostringstream oss;
-						oss << "param " << endl;
-						$$.code = strdup(oss.str().c_str()); 
-					  }
+					  $$.code = "";
+					  $$.result_id = "";
                     }
                     ;
 funcInnerLocals:    declaration SEMICOLON funcInnerLocals 
@@ -124,10 +118,12 @@ funcInnerLocals:    declaration SEMICOLON funcInnerLocals
                       oss << $1.code;
                       oss << $3.code;
                       $$.code = strdup(oss.str().c_str());
+                      
                     }
                     | 
                     {
                       $$.code = "";
+                      $$.result_id = "";
                     }
                     ;
 funcInnerTwo:   statement SEMICOLON funcInnerTwo 
@@ -146,6 +142,7 @@ funcInnerTwo:   statement SEMICOLON funcInnerTwo
 declaration:    decInner COLON INTEGER
                 {
                   $$.code = $1.code;
+                  $$.result_id = $1.result_id;
                 }
                 | decInner COLON ARRAY L_SQUARE_BRACKET NUMBER R_SQUARE_BRACKET OF INTEGER {printf("declaration . decInner COLON ARRAY L_SQUARE_BRACKET NUMBER R_SQUARE_BRACKET OF INTEGER \n");}
                 ;
@@ -339,13 +336,13 @@ multiplicative_expr:  term
 						  $$.result_id = $1.result_id;
 						}	 
 						else {
-                        ostringstream oss;
-                        string x = new_temp();
-						oss << $1.code;
-                        oss << ". " << x << endl;
-                        oss << "= " << x << ", " << $1.result_id << endl;
-                        $$.code = strdup(oss.str().c_str());
-                        $$.result_id = strdup(x.c_str());
+						  ostringstream oss;
+						  string x = new_temp();
+						  oss << $1.code;
+						  oss << ". " << x << endl;
+						  oss << "= " << x << ", " << $1.result_id << endl;
+						  $$.code = strdup(oss.str().c_str());
+						  $$.result_id = strdup(x.c_str());
 						}
                       }
                       | term MULT multiplicative_expr
@@ -366,7 +363,7 @@ multiplicative_expr:  term
                         oss << ". " << x << endl;
                         oss << "/ " << x << ", " << $1.result_id << ", " << $3.result_id << endl;
                         $$.code = strdup(oss.str().c_str());
-                        $$.result_id = strdup(x.c_str()); //  stoi($1.result_id) + stoi($3.result_id);
+                        $$.result_id = strdup(x.c_str()); 
                       }
                       | term MOD multiplicative_expr 
                       {
@@ -405,7 +402,7 @@ term:           var
 				  oss << ". " << x << endl;
 				  oss << "call " << $1.result_id << ", " << x << endl;
 				  $$.code = strdup(oss.str().c_str());
-				  $$.result_id = $3.result_id;
+				  $$.result_id = strdup(x.c_str());		  
 				}
                 ;
 termInnerOne:   expression COMMA termInnerOne {printf("termInnerOne . expression COMMA termInnerOne \n");}
@@ -421,7 +418,8 @@ termInnerOne:   expression COMMA termInnerOne {printf("termInnerOne . expression
 				}
                 ;
 var:            ident
-                { $$.code = "";
+                { 
+				  $$.code = "";
                   $$.result_id = $1.result_id;
                 }
                 | ident L_SQUARE_BRACKET expression R_SQUARE_BRACKET
