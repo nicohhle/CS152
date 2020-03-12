@@ -1,0 +1,8 @@
+function fibonacci;
+beginparams
+endparams
+beginlocals
+i, j : integer;
+endlocals
+beginbody
+endbody

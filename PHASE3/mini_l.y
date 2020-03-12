@@ -52,6 +52,7 @@ string new_temp(){
   struct expression_semval {
 	 char *code;
 	 char *result_id;
+	 char *arr_size;
   } e;
 
   struct comp_semval {
@@ -141,18 +142,43 @@ funcInnerTwo:   statement SEMICOLON funcInnerTwo
                 ;
 declaration:    decInner COLON INTEGER
                 {
-                  $$.code = $1.code;
-                  $$.result_id = $1.result_id;
+				  if (strchr($1.result_id, '#') == NULL){
+				    ostringstream oss;
+				    oss << ". " << $1.result_id << endl;
+				    $$.code = strdup(oss.str().c_str());
+				    $$.result_id = $1.result_id;
+				  }
+				  else {
+				    char curr = $1.result_id[0];
+				    int count = 0;
+				    ostringstream oss;
+				    while (count != strlen($1.result_id)){
+					  if (curr != '#'){
+					    oss << ". " << curr << endl;
+					  }
+					  count += 1;
+					  curr = $1.result_id[count];
+					}
+					$$.code = strdup(oss.str().c_str());
+				  }
                 }
-                | decInner COLON ARRAY L_SQUARE_BRACKET NUMBER R_SQUARE_BRACKET OF INTEGER {printf("declaration . decInner COLON ARRAY L_SQUARE_BRACKET NUMBER R_SQUARE_BRACKET OF INTEGER \n");}
+                | decInner COLON ARRAY L_SQUARE_BRACKET NUMBER R_SQUARE_BRACKET OF INTEGER 
+                {
+				  ostringstream oss;
+				  oss << ".[] " << $1.result_id << ", " << $5 << endl;
+				  $$.arr_size = strdup(to_string($5).c_str());
+				}
                 ;
 decInner:       ident 
                 {
-                  ostringstream oss;
-                  oss << ". " << $1.result_id << endl;
-                  $$.code = strdup(oss.str().c_str());
+				  
                 }
-                | ident COMMA decInner {printf("decInner . ident COMMA decInner \n");}
+                | ident COMMA decInner 
+                {
+				  ostringstream oss; 
+				  oss << $1.result_id << "#" << $3.result_id;
+				  $$.result_id = strdup(oss.str().c_str());
+				}
                 ;
 statement:      var ASSIGN expression
                 {
@@ -213,10 +239,10 @@ statement:      var ASSIGN expression
                 ;
 stateInnerOne:  statement SEMICOLON stateInnerOne {printf("stateInnerOne . statement SEMICOLON stateInnerOne \n");}
                 | statement SEMICOLON 
-		{
-		  $$.code = $1.code;
-		  $$.result_id = $1.result_id;
-		}
+				{
+				  $$.code = $1.code;
+				  $$.result_id = $1.result_id;
+				}
                 ;
 stateInnerTwo:  var 
 				{

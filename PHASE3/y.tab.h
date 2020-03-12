@@ -115,6 +115,7 @@ union YYSTYPE
   struct expression_semval {
 	 char *code;
 	 char *result_id;
+	 char *arr_size;
   } e;
 
   struct comp_semval {
@@ -122,7 +123,7 @@ union YYSTYPE
   } c;
 
 
-#line 126 "y.tab.h" /* yacc.c:1909  */
+#line 127 "y.tab.h" /* yacc.c:1909  */
 };
 
 typedef union YYSTYPE YYSTYPE;
