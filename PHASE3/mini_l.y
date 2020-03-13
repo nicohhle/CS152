@@ -431,10 +431,12 @@ bool_expr:      relation_and_expr
                 }
                 | relation_and_expr OR bool_expr 
                 {
-                  ostringstream oss;
-                  oss << $1.code << $3.code;
+                  ostringstream oss; 
                   string x = new_temp();
-                  oss << "|| " << x << ", " << $1.result_id << ", " << $3.result_id;
+                  oss << $1.code << $3.code;
+                  oss << ". " << x << endl;
+                  oss << "|| " << x << ", " << $1.result_id << ", " << $3.result_id << endl;
+                  
                   $$.code = strdup(oss.str().c_str());
                   $$.result_id = strdup(x.c_str());
                 }
@@ -470,12 +472,14 @@ relation_expr:  expression comp expression
                 {
 				  ostringstream oss;
 				  oss << "1";
+				  $$.code = "";
 				  $$.result_id = strdup(oss.str().c_str());
 				}
                 | FALSE 
                 {
 				  ostringstream oss;
 				  oss << "0";
+				  $$.code = "";
 				  $$.result_id = strdup(oss.str().c_str());				
 				}
                 | 
