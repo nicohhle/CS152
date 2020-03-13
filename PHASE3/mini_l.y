@@ -235,12 +235,7 @@ statement:      var ASSIGN expression
 				  oss << ":= " << n << endl;
 				  oss << ": " << m << endl;
 				  
-				  string x = new_temp();
-				  oss << ". " << x << endl;
-				  oss << "= " << x << ", " << $4.result_id << endl;
-				  
 				  $$.code = strdup(oss.str().c_str());
-                  $$.result_id = strdup(x.c_str());
 				  
 				}
                 | DO BEGINLOOP stateInnerOne ENDLOOP WHILE bool_expr {printf("statement . DO BEGINLOOP stateInnerOne ENDLOOP WHILE bool_expr \n");}
@@ -276,7 +271,12 @@ statement:      var ASSIGN expression
                   $$.code = strdup(oss.str().c_str());
                 }
                 ;
-stateInnerOne:  statement SEMICOLON stateInnerOne {printf("stateInnerOne . statement SEMICOLON stateInnerOne \n");}
+stateInnerOne:  statement SEMICOLON stateInnerOne 
+				{
+				  ostringstream oss;
+				  oss << $1.code << $3.code;
+				  $$.code = strdup(oss.str().c_str());
+				}
                 | statement SEMICOLON 
 				{
 				  $$.code = $1.code;
