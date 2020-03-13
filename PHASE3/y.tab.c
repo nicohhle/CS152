@@ -1691,7 +1691,7 @@ yyreduce:
 				  string n = new_label();
 				  ostringstream oss;
 				 
-				  if (strstr((yyvsp[-3].s).label, "__label__") == NULL){
+				  if ((yyvsp[-3].s).label == NULL || strstr((yyvsp[-3].s).label, "__label__") == NULL){
 					  oss << ": " << l << endl;
 					  oss << (yyvsp[-3].s).code;
 					  oss << "?:= " << n << ", " << (yyvsp[0].e).result_id << endl;

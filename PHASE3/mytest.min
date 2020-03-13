@@ -12,7 +12,8 @@ endlocals
 
 beginbody	## main program
 
-  read i, j;
+  read i
+  read j;
 
   k := 0;
   n := 20;
@@ -46,7 +47,9 @@ beginbody	## main program
      endloop;
   endif;
 
-  write i, j, k;
+  write i
+  write j
+  write k;
 
   if i < n and i >= 0 then
     write t[i];
