@@ -10,20 +10,7 @@ beginlocals
 
 endlocals
 
-beginbody	## main program
-
-  read i, j;
-
-  k := 0;
-  n := 20;
-  
-  do 
-    beginloop
-       t[k] := k;
-       k := k + 1;
-       if k % 2 == 0 then
-           continue;
-       endif;
-       write t[k-1];
-    endloop;
+beginbody	
+ k := 3;
+ write t[k-1];
 endbody

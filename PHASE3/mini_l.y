@@ -47,6 +47,9 @@ string new_temp(){
 	 char *code;
 	 char *result_id;
 	 char *label;
+	 char *arr_size;
+	 char *arr_name;
+	 bool is_array;
   } s;
 
   struct expression_semval {
@@ -275,11 +278,11 @@ statement:      var ASSIGN expression
 				  string n = new_label();
 				  ostringstream oss;
 				 
-				  if ($3.label == NULL || strstr($3.label, "__label__") == NULL){
+				  if ($3.label == NULL){
 					  oss << ": " << l << endl;
 					  oss << $3.code;
 					  oss << "?:= " << n << ", " << $6.result_id << endl;
-					  oss << ":= " << m << endl;
+					  oss << ":= " << m << "WHY" <<endl;
 					  oss << ": " << n << endl;
 					  oss << $6.code;
 					  oss << ": " << m << endl; 
@@ -288,7 +291,7 @@ statement:      var ASSIGN expression
 					  oss << ": " << l << endl;
 					  oss << $3.code;
 					  oss << "?:= " << n << ", " << $6.result_id << endl;
-					  oss << ":= " << m << endl;
+					  oss << ":= " << m << "HUH" << endl;
 					  oss << ":= " << $3.label << endl;
 					  oss << ": " << n << endl;
 					  oss << ": " << $3.label << endl;
@@ -304,10 +307,18 @@ statement:      var ASSIGN expression
                 | READ stateInnerTwo 
                 {
 				  ostringstream oss;
+				  oss << $2.code;
 				  if (strchr($2.result_id, '#') == NULL){
-					  oss << ".< " << $2.result_id << endl;
-					  $$.code = strdup(oss.str().c_str());
-					  $$.result_id = $2.result_id;
+					  if ($2.is_array){
+						  oss << ".[]< " << $2.arr_name << ", " << $2.result_id << endl;
+						  $$.code = strdup(oss.str().c_str());
+						  $$.result_id = $2.result_id;
+					  }
+					  else {
+						  oss << ".< " << $2.result_id << endl;
+						  $$.code = strdup(oss.str().c_str());
+						  $$.result_id = $2.result_id;
+					  }			  
 				  }
 				  else {
 					  int count = 0;
@@ -331,11 +342,19 @@ statement:      var ASSIGN expression
                 | WRITE stateInnerTwo 
                 {
 				  ostringstream oss;
+				  oss << $2.code;
 				  
 				  if (strchr($2.result_id, '#') == NULL){
-					  oss << ".> " << $2.result_id << endl;
-					  $$.code = strdup(oss.str().c_str());
-					  $$.result_id = $2.result_id;
+					  if ($2.is_array){
+						  oss << ".[]> " << $2.arr_name << ", " << $2.result_id << endl;
+						  $$.code = strdup(oss.str().c_str());
+						  $$.result_id = $2.result_id;
+					  }
+					  else {
+						  oss << ".> " << $2.result_id << endl;
+						  $$.code = strdup(oss.str().c_str());
+						  $$.result_id = $2.result_id;
+					  }
 				  }
 				  else {
 					  int count = 0;
@@ -385,8 +404,16 @@ stateInnerOne:  statement SEMICOLON stateInnerOne
                 ;
 stateInnerTwo:  var 
 				{
-				  $$.code = $1.code;
-				  $$.result_id = $1.result_id;
+				  if ($1.is_array){
+					  $$.code = $1.code;
+					  $$.result_id = $1.result_id;
+					  $$.is_array = TRUE;
+					  $$.arr_name = $1.arr_name;
+				  }
+				  else {
+					  $$.code = $1.code;
+					  $$.result_id = $1.result_id;
+				  }
 				}
                 | var COMMA stateInnerTwo 
 			    {
