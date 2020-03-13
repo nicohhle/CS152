@@ -1,11 +1,10 @@
-
-
 %{
 #define YY_NO_UNPUT
 #include <stdio.h>
 #include <string>
 #include <cstring>
 #include <stdlib.h>
+#include <stdbool.h>
 #include "y.tab.h"
 #include "t.tab.h"
 #include "heading.h"
@@ -53,6 +52,8 @@ string new_temp(){
 	 char *code;
 	 char *result_id;
 	 char *arr_size;
+	 char *arr_name;
+	 bool is_array;
   } e;
 
   struct comp_semval {
@@ -188,10 +189,19 @@ decInner:       ident
                 ;
 statement:      var ASSIGN expression
                 {
-                  ostringstream oss;
-                  oss << $3.code;
-				  oss << "= " << $1.result_id << ", " << $3.result_id << endl;
-				  $$.code = strdup(oss.str().c_str());
+				  if ($1.is_array){
+				    ostringstream oss;
+				    oss << $1.code;
+				    oss << $3.code;
+				    oss << "[]= " << $1.arr_name << ", " <<  $1.result_id << ", " 	<< $3.result_id << endl;
+				    $$.code = strdup(oss.str().c_str());
+				  }
+				  else {
+				    ostringstream oss;
+                    oss << $3.code;
+				    oss << "= " << $1.result_id << ", " << $3.result_id << endl;
+				    $$.code = strdup(oss.str().c_str());
+				  }
                 }
                 | IF bool_expr THEN stateInnerOne ENDIF
                 {
@@ -210,9 +220,29 @@ statement:      var ASSIGN expression
                 }
                 | IF bool_expr THEN stateInnerOne ELSE stateInnerOne ENDIF {printf("statement . IF bool_exp THEN stateInnerOne ELSE stateInnerOne ENDIF \n");}
                 | WHILE bool_expr BEGINLOOP stateInnerOne ENDLOOP
-		{
-		  
-		}
+				{
+				  string l = new_label();
+				  string m = new_label();
+				  string n = new_label();
+				  
+				  ostringstream oss;
+				  oss << ": " << n << endl;
+				  oss << $2.code;
+				  oss << "?:= " << l << ", " << $2.result_id << endl;
+				  oss << ":= " << m << endl;
+				  oss << ": " << l << endl;
+				  oss << $4.code;
+				  oss << ":= " << n << endl;
+				  oss << ": " << m << endl;
+				  
+				  string x = new_temp();
+				  oss << ". " << x << endl;
+				  oss << "= " << x << ", " << $4.result_id << endl;
+				  
+				  $$.code = strdup(oss.str().c_str());
+                  $$.result_id = strdup(x.c_str());
+				  
+				}
                 | DO BEGINLOOP stateInnerOne ENDLOOP WHILE bool_expr {printf("statement . DO BEGINLOOP stateInnerOne ENDLOOP WHILE bool_expr \n");}
                 | FOR var ASSIGN NUMBER SEMICOLON bool_expr SEMICOLON var ASSIGN expression BEGINLOOP stateInnerOne ENDLOOP 
                 {}
@@ -373,7 +403,6 @@ multiplicative_expr:  term
 						else {
 						  ostringstream oss;
 						  string x = new_temp();
-						  oss << $1.code;
 						  oss << ". " << x << endl;
 						  oss << "= " << x << ", " << $1.result_id << endl;
 						  $$.code = strdup(oss.str().c_str());
@@ -388,13 +417,13 @@ multiplicative_expr:  term
                         oss << ". " << x << endl;
                         oss << "* " << x << ", " << $1.result_id << ", " << $3.result_id << endl;
                         $$.code = strdup(oss.str().c_str());
-                        $$.result_id = strdup(x.c_str()); //stoi($1.result_id) + stoi($3.result_id);
+                        $$.result_id = strdup(x.c_str());
                       }
                       | term DIV multiplicative_expr 
                       {
                         ostringstream oss;
-                        oss << $1.code << $3.code;
                         string x = new_temp();
+                        oss << $1.code << $3.code;
                         oss << ". " << x << endl;
                         oss << "/ " << x << ", " << $1.result_id << ", " << $3.result_id << endl;
                         $$.code = strdup(oss.str().c_str());
@@ -454,12 +483,14 @@ termInnerOne:   expression COMMA termInnerOne {printf("termInnerOne . expression
                 ;
 var:            ident
                 { 
-				  $$.code = "";
                   $$.result_id = $1.result_id;
                 }
                 | ident L_SQUARE_BRACKET expression R_SQUARE_BRACKET
                 {
-                  printf("ident L_SQUARE_BRACKET expression R_SQUARE_BRACKET \n");
+				  $$.arr_name = $1.result_id;
+				  $$.result_id = $3.result_id;
+				  $$.is_array = TRUE;
+				  $$.code = $3.code;
                 }
                 ;
 %%

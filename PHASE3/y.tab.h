@@ -102,7 +102,7 @@ extern int yydebug;
 
 union YYSTYPE
 {
-#line 43 "mini_l.y" /* yacc.c:1909  */
+#line 42 "mini_l.y" /* yacc.c:1909  */
 
   int int_val;
   char*	op_val;
@@ -116,6 +116,8 @@ union YYSTYPE
 	 char *code;
 	 char *result_id;
 	 char *arr_size;
+	 char *arr_name;
+	 bool is_array;
   } e;
 
   struct comp_semval {
@@ -123,7 +125,7 @@ union YYSTYPE
   } c;
 
 
-#line 127 "y.tab.h" /* yacc.c:1909  */
+#line 129 "y.tab.h" /* yacc.c:1909  */
 };
 
 typedef union YYSTYPE YYSTYPE;
