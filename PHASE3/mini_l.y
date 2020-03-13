@@ -219,7 +219,20 @@ statement:      var ASSIGN expression
 
                   $$.code = strdup(oss.str().c_str());
                 }
-                | IF bool_expr THEN stateInnerOne ELSE stateInnerOne ENDIF {printf("statement . IF bool_exp THEN stateInnerOne ELSE stateInnerOne ENDIF \n");}
+                | IF bool_expr THEN stateInnerOne ELSE stateInnerOne ENDIF 
+				{
+				  string l = new_label();
+				  string m = new_label();
+				  ostringstream oss;
+				  
+				  oss << $2.code;
+				  oss << "?:= " << l << ", " << $2.result_id << endl;
+				  oss << ":= " << m << endl;
+				  oss << ": " << l << endl;
+				  oss << $4.code;
+				  oss << ": " << m << endl;
+				  oss << $6.code;				  
+				}
                 | WHILE bool_expr BEGINLOOP stateInnerOne ENDLOOP
 				{
 				  string l = new_label();
@@ -227,18 +240,16 @@ statement:      var ASSIGN expression
 				  string n = new_label();
 				  
 				  ostringstream oss;
-				  oss << ":= " << $4.label << endl;
 				  oss << ": " << n << endl;
 				  oss << $2.code;
 				  oss << "?:= " << l << ", " << $2.result_id << endl;
 				  oss << ":= " << m << endl;
+				  oss << ":= " << $4.label << endl;
 				  oss << ": " << l << endl;
 				  oss << $4.code;
-				  
-				  oss << ": " << $4.label << endl;
 				  oss << ":= " << n << endl;
 				  oss << ": " << m << endl;
-				  
+				  oss << ": " << $4.label << endl;
 				  $$.code = strdup(oss.str().c_str());
 				  
 				}
@@ -247,13 +258,15 @@ statement:      var ASSIGN expression
 				  string l = new_label();
 				  string m = new_label();
 				  string n = new_label();
-				  string o = new_label();
-				  
+				
 				  ostringstream oss;
 				  oss << ": " << l << endl;
 				  oss << $3.code;
+				  oss << "?:= " << n << ", " << $6.result_id << endl;
+				  oss << ":= " << m << endl;
+				  oss << ":= " << $3.label << endl;
 				  oss << ": " << n << endl;
-				  oss << ": " << o << endl;
+				  oss << ": " << $3.label << endl;
 				  oss << $6.code;
 				  oss << ": " << m << endl;
 				  
@@ -280,9 +293,7 @@ statement:      var ASSIGN expression
                 {
                   ostringstream oss;
                   string l = new_label();
-                  oss << ":= " << l << endl;
                   $$.label = strdup(l.c_str());
-                  $$.code = strdup(oss.str().c_str());
                 }
                 | RETURN expression 
                 {
@@ -334,9 +345,11 @@ relation_and_expr:  relation_expr
                     | relation_expr AND relation_and_expr  
                     {
                       ostringstream oss;
-                      oss << $1.code << $3.code;
                       string x = new_temp();
-                      oss << "&& " << x << ", " << $1.result_id << ", " << $3.result_id << endl;
+                      oss << $1.code << $3.code;
+                      oss << ". " << x << endl;
+                      oss << "&& " << x << 	", " << $1.result_id << ", " << $3.result_id << endl;
+                      
                       $$.code = strdup(oss.str().c_str());
                       $$.result_id = strdup(x.c_str());
                     }
