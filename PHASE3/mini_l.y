@@ -235,7 +235,9 @@ statement:      var ASSIGN expression
 				  oss << ": " << l << endl;
 				  oss << $4.code;
 				  oss << ": " << m << endl;
-				  oss << $6.code;				  
+				  oss << $6.code;	
+				  
+				  $$.code = strdup(oss.str().c_str());
 				}
                 | WHILE bool_expr BEGINLOOP stateInnerOne ENDLOOP
 				{
