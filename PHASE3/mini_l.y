@@ -397,8 +397,21 @@ expression:     multiplicative_expr
 multiplicative_expr:  term
                       {	
 						if (strlen($1.code) > 0){
-						  $$.code = $1.code;
-						  $$.result_id = $1.result_id;
+						  if ($1.is_array){
+							ostringstream oss;
+							string x = new_temp();
+							
+							oss << $1.code;
+							oss << ". " << x << endl;
+							oss << "=[] " << x << ", " << $1.arr_name << ", " << $1.result_id << endl;
+							$$.code = strdup(oss.str().c_str());
+						    $$.result_id = strdup(x.c_str());
+						  }
+						  else {
+							$$.code = $1.code;
+						    $$.result_id = $1.result_id;
+						  }
+		
 						}	 
 						else {
 						  ostringstream oss;
