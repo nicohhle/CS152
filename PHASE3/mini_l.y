@@ -294,6 +294,7 @@ statement:      var ASSIGN expression
                   ostringstream oss;
                   string l = new_label();
                   $$.label = strdup(l.c_str());
+                  $$.code = "";
                 }
                 | RETURN expression 
                 {
@@ -320,7 +321,12 @@ stateInnerTwo:  var
 				  $$.code = $1.code;
 				  $$.result_id = $1.result_id;
 				}
-                | var COMMA stateInnerTwo {printf("stateInnerTwo . var COMMA stateInnerTwo \n");}
+                | var COMMA stateInnerTwo 
+				  {
+				    ostringstream oss;
+				    oss << $1.code << $3.code;
+				    $$.code = strdup(oss.str().c_str());
+				  }
                 ;
 bool_expr:      relation_and_expr
                 {
@@ -364,8 +370,18 @@ relation_expr:  expression comp expression
                   $$.code = strdup(oss.str().c_str());
                   $$.result_id = strdup(x.c_str());
                 }
-                | TRUE {printf("relation_expr . TRUE \n");}
-                | FALSE {printf("relation_expr . FALSE \n");}
+                | TRUE 
+                {
+				  ostringstream oss;
+				  oss << "1";
+				  $$.result_id = strdup(oss.str().c_str());
+				}
+                | FALSE 
+                {
+				  ostringstream oss;
+				  oss << "0";
+				  $$.result_id = strdup(oss.str().c_str());				
+				}
                 | 
                 L_PAREN bool_expr R_PAREN 
                 {
