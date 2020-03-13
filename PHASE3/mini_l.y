@@ -167,6 +167,7 @@ declaration:    decInner COLON INTEGER
 					  count += 1;
 					}
 					$$.code = strdup(oss.str().c_str());
+					$$.result_id = $1.result_id;
 				  }
                 }
                 | decInner COLON ARRAY L_SQUARE_BRACKET NUMBER R_SQUARE_BRACKET OF INTEGER 
@@ -238,18 +239,32 @@ statement:      var ASSIGN expression
 				  string l = new_label();
 				  string m = new_label();
 				  string n = new_label();
-				  
 				  ostringstream oss;
-				  oss << ": " << n << endl;
-				  oss << $2.code;
-				  oss << "?:= " << l << ", " << $2.result_id << endl;
-				  oss << ":= " << m << endl;
-				  oss << ":= " << $4.label << endl;
-				  oss << ": " << l << endl;
-				  oss << $4.code;
-				  oss << ":= " << n << endl;
-				  oss << ": " << m << endl;
-				  oss << ": " << $4.label << endl;
+				  
+				  if ($4.label == NULL || strstr($4.label, "__label__") == NULL){
+					  oss << ": " << n << endl;
+					  oss << $2.code;
+					  oss << "?:= " << l << ", " << $2.result_id << endl;
+					  oss << ":= " << m << endl;
+					  oss << ": " << l << endl;
+					  oss << $4.code;
+					  oss << ":= " << n << endl;
+					  oss << ": " << m << endl;
+				  }
+				  else {
+				  	  oss << ": " << n << endl;
+					  oss << $2.code;
+					  oss << "?:= " << l << ", " << $2.result_id << endl;
+					  oss << ":= " << m << endl;
+					  oss << ":= " << $4.label << endl;
+					  oss << ": " << l << endl;
+					  oss << $4.code;
+					  oss << ":= " << n << endl;
+					  oss << ": " << m << endl;
+					  oss << ": " << $4.label << endl;
+				  }
+				  
+
 				  $$.code = strdup(oss.str().c_str());
 				  
 				}
@@ -258,18 +273,29 @@ statement:      var ASSIGN expression
 				  string l = new_label();
 				  string m = new_label();
 				  string n = new_label();
-				
 				  ostringstream oss;
-				  oss << ": " << l << endl;
-				  oss << $3.code;
-				  oss << "?:= " << n << ", " << $6.result_id << endl;
-				  oss << ":= " << m << endl;
-				  oss << ":= " << $3.label << endl;
-				  oss << ": " << n << endl;
-				  oss << ": " << $3.label << endl;
-				  oss << $6.code;
-				  oss << ": " << m << endl;
-				  
+				 
+				  if ($3.label == NULL || strstr($3.label, "__label__") == NULL){
+					  oss << ": " << l << endl;
+					  oss << $3.code;
+					  oss << "?:= " << n << ", " << $6.result_id << endl;
+					  oss << ":= " << m << endl;
+					  oss << ": " << n << endl;
+					  oss << $6.code;
+					  oss << ": " << m << endl; 
+				  }
+				  else {
+					  oss << ": " << l << endl;
+					  oss << $3.code;
+					  oss << "?:= " << n << ", " << $6.result_id << endl;
+					  oss << ":= " << m << endl;
+					  oss << ":= " << $3.label << endl;
+					  oss << ": " << n << endl;
+					  oss << ": " << $3.label << endl;
+					  oss << $6.code;
+					  oss << ": " << m << endl;
+				  }
+
 				  $$.code = strdup(oss.str().c_str());
 				  
 				}
@@ -284,6 +310,7 @@ statement:      var ASSIGN expression
                 }
                 | WRITE stateInnerTwo 
                 {
+				  cout << "write " << $2.result_id << endl;
 				  ostringstream oss;
 				  oss << ".> " << $2.result_id << endl;
 				  $$.code = strdup(oss.str().c_str());
