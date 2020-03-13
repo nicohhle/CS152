@@ -303,18 +303,58 @@ statement:      var ASSIGN expression
                 {}
                 | READ stateInnerTwo 
                 {
-                  ostringstream oss;
-                  oss << ".< " << $2.result_id << endl;
-                  $$.code = strdup(oss.str().c_str());
-                  $$.result_id = $2.result_id;
+				  ostringstream oss;
+				  if (strchr($2.result_id, '#') == NULL){
+					  oss << ".< " << $2.result_id << endl;
+					  $$.code = strdup(oss.str().c_str());
+					  $$.result_id = $2.result_id;
+				  }
+				  else {
+					  int count = 0;
+					  char curr = $2.result_id[0];
+					  
+					  while (count < strlen($2.result_id)){
+					    curr = $2.result_id[count];
+					    ostringstream lss;
+
+					    while ((curr != '#') && count < strlen($2.result_id)){
+						  lss << curr;
+						  count += 1;
+						  curr = $2.result_id[count];
+						}
+						oss << ".< " << lss.str().c_str() << endl;
+						count += 1;
+					  }
+				  }  
+				  $$.code = strdup(oss.str().c_str());				
                 }
                 | WRITE stateInnerTwo 
                 {
-				  cout << "write " << $2.result_id << endl;
 				  ostringstream oss;
-				  oss << ".> " << $2.result_id << endl;
-				  $$.code = strdup(oss.str().c_str());
-				  $$.result_id = $2.result_id;
+				  
+				  if (strchr($2.result_id, '#') == NULL){
+					  oss << ".> " << $2.result_id << endl;
+					  $$.code = strdup(oss.str().c_str());
+					  $$.result_id = $2.result_id;
+				  }
+				  else {
+					  int count = 0;
+					  char curr = $2.result_id[0];
+					  
+					  while (count < strlen($2.result_id)){
+					    curr = $2.result_id[count];
+					    ostringstream lss;
+					    
+					    while ((curr != '#') && count < strlen($2.result_id)){
+						  lss << curr;
+						  count += 1;
+						  curr = $2.result_id[count];
+						}
+						oss << ".> " << lss.str().c_str() << endl;
+						count += 1;
+					  }
+				  }  
+				  $$.code = strdup(oss.str().c_str());	
 				}
                 | CONTINUE 
                 {
@@ -349,11 +389,11 @@ stateInnerTwo:  var
 				  $$.result_id = $1.result_id;
 				}
                 | var COMMA stateInnerTwo 
-				  {
-				    ostringstream oss;
-				    oss << $1.code << $3.code;
-				    $$.code = strdup(oss.str().c_str());
-				  }
+			    {
+				  ostringstream oss;
+				  oss << $1.result_id << "#" << $3.result_id;
+				  $$.result_id = strdup(oss.str().c_str());
+			    }
                 ;
 bool_expr:      relation_and_expr
                 {

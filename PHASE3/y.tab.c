@@ -540,11 +540,11 @@ static const yytype_uint16 yyrline[] =
 {
        0,    77,    77,    81,    86,    90,    98,   104,   113,   118,
      127,   132,   139,   145,   173,   181,   185,   192,   208,   223,
-     237,   271,   302,   304,   311,   319,   326,   334,   340,   346,
-     351,   358,   363,   373,   378,   390,   400,   406,   413,   418,
-     419,   420,   421,   423,   427,   431,   435,   439,   443,   448,
-     453,   463,   474,   502,   512,   522,   533,   537,   542,   547,
-     548,   549,   550,   562,   563,   569,   574,   578
+     237,   271,   302,   304,   331,   359,   366,   374,   380,   386,
+     391,   398,   403,   413,   418,   430,   440,   446,   453,   458,
+     459,   460,   461,   463,   467,   471,   475,   479,   483,   488,
+     493,   503,   514,   542,   552,   562,   573,   577,   582,   587,
+     588,   589,   590,   602,   603,   609,   614,   618
 };
 #endif
 
@@ -1727,97 +1727,137 @@ yyreduce:
   case 23:
 #line 305 "mini_l.y" /* yacc.c:1646  */
     {
-                  ostringstream oss;
-                  oss << ".< " << (yyvsp[0].s).result_id << endl;
-                  (yyval.s).code = strdup(oss.str().c_str());
-                  (yyval.s).result_id = (yyvsp[0].s).result_id;
+				  ostringstream oss;
+				  if (strchr((yyvsp[0].s).result_id, '#') == NULL){
+					  oss << ".< " << (yyvsp[0].s).result_id << endl;
+					  (yyval.s).code = strdup(oss.str().c_str());
+					  (yyval.s).result_id = (yyvsp[0].s).result_id;
+				  }
+				  else {
+					  int count = 0;
+					  char curr = (yyvsp[0].s).result_id[0];
+					  
+					  while (count < strlen((yyvsp[0].s).result_id)){
+					    curr = (yyvsp[0].s).result_id[count];
+					    ostringstream lss;
+
+					    while ((curr != '#') && count < strlen((yyvsp[0].s).result_id)){
+						  lss << curr;
+						  count += 1;
+						  curr = (yyvsp[0].s).result_id[count];
+						}
+						oss << ".< " << lss.str().c_str() << endl;
+						count += 1;
+					  }
+				  }  
+				  (yyval.s).code = strdup(oss.str().c_str());				
                 }
-#line 1736 "y.tab.c" /* yacc.c:1646  */
+#line 1756 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 24:
-#line 312 "mini_l.y" /* yacc.c:1646  */
+#line 332 "mini_l.y" /* yacc.c:1646  */
     {
-				  cout << "write " << (yyvsp[0].s).result_id << endl;
 				  ostringstream oss;
-				  oss << ".> " << (yyvsp[0].s).result_id << endl;
-				  (yyval.s).code = strdup(oss.str().c_str());
-				  (yyval.s).result_id = (yyvsp[0].s).result_id;
+				  
+				  if (strchr((yyvsp[0].s).result_id, '#') == NULL){
+					  oss << ".> " << (yyvsp[0].s).result_id << endl;
+					  (yyval.s).code = strdup(oss.str().c_str());
+					  (yyval.s).result_id = (yyvsp[0].s).result_id;
+				  }
+				  else {
+					  int count = 0;
+					  char curr = (yyvsp[0].s).result_id[0];
+					  
+					  while (count < strlen((yyvsp[0].s).result_id)){
+					    curr = (yyvsp[0].s).result_id[count];
+					    ostringstream lss;
+					    
+					    while ((curr != '#') && count < strlen((yyvsp[0].s).result_id)){
+						  lss << curr;
+						  count += 1;
+						  curr = (yyvsp[0].s).result_id[count];
+						}
+						oss << ".> " << lss.str().c_str() << endl;
+						count += 1;
+					  }
+				  }  
+				  (yyval.s).code = strdup(oss.str().c_str());	
 				}
-#line 1748 "y.tab.c" /* yacc.c:1646  */
+#line 1788 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 25:
-#line 320 "mini_l.y" /* yacc.c:1646  */
+#line 360 "mini_l.y" /* yacc.c:1646  */
     {
                   ostringstream oss;
                   string l = new_label();
                   (yyval.s).label = strdup(l.c_str());
                   (yyval.s).code = "";
                 }
-#line 1759 "y.tab.c" /* yacc.c:1646  */
+#line 1799 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 26:
-#line 327 "mini_l.y" /* yacc.c:1646  */
+#line 367 "mini_l.y" /* yacc.c:1646  */
     {
                   ostringstream oss;
                   oss << (yyvsp[0].e).code;
                   oss << "ret " << (yyvsp[0].e).result_id << endl;
                   (yyval.s).code = strdup(oss.str().c_str());
                 }
-#line 1770 "y.tab.c" /* yacc.c:1646  */
+#line 1810 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 27:
-#line 335 "mini_l.y" /* yacc.c:1646  */
+#line 375 "mini_l.y" /* yacc.c:1646  */
     {
 				  ostringstream oss;
 				  oss << (yyvsp[-2].s).code << (yyvsp[0].s).code;
 				  (yyval.s).code = strdup(oss.str().c_str());
 				}
-#line 1780 "y.tab.c" /* yacc.c:1646  */
+#line 1820 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 28:
-#line 341 "mini_l.y" /* yacc.c:1646  */
+#line 381 "mini_l.y" /* yacc.c:1646  */
     {
 				  (yyval.s).code = (yyvsp[-1].s).code;
 				  (yyval.s).result_id = (yyvsp[-1].s).result_id;
 				}
-#line 1789 "y.tab.c" /* yacc.c:1646  */
+#line 1829 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 29:
-#line 347 "mini_l.y" /* yacc.c:1646  */
+#line 387 "mini_l.y" /* yacc.c:1646  */
     {
 				  (yyval.s).code = (yyvsp[0].e).code;
 				  (yyval.s).result_id = (yyvsp[0].e).result_id;
 				}
-#line 1798 "y.tab.c" /* yacc.c:1646  */
+#line 1838 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 30:
-#line 352 "mini_l.y" /* yacc.c:1646  */
+#line 392 "mini_l.y" /* yacc.c:1646  */
     {
-				    ostringstream oss;
-				    oss << (yyvsp[-2].e).code << (yyvsp[0].s).code;
-				    (yyval.s).code = strdup(oss.str().c_str());
-				  }
-#line 1808 "y.tab.c" /* yacc.c:1646  */
+				  ostringstream oss;
+				  oss << (yyvsp[-2].e).result_id << "#" << (yyvsp[0].s).result_id;
+				  (yyval.s).result_id = strdup(oss.str().c_str());
+			    }
+#line 1848 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 31:
-#line 359 "mini_l.y" /* yacc.c:1646  */
+#line 399 "mini_l.y" /* yacc.c:1646  */
     {
                   (yyval.e).code = (yyvsp[0].e).code;
                   (yyval.e).result_id = (yyvsp[0].e).result_id;
                 }
-#line 1817 "y.tab.c" /* yacc.c:1646  */
+#line 1857 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 32:
-#line 364 "mini_l.y" /* yacc.c:1646  */
+#line 404 "mini_l.y" /* yacc.c:1646  */
     {
                   ostringstream oss;
                   oss << (yyvsp[-2].e).code << (yyvsp[0].e).code;
@@ -1826,20 +1866,20 @@ yyreduce:
                   (yyval.e).code = strdup(oss.str().c_str());
                   (yyval.e).result_id = strdup(x.c_str());
                 }
-#line 1830 "y.tab.c" /* yacc.c:1646  */
+#line 1870 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 33:
-#line 374 "mini_l.y" /* yacc.c:1646  */
+#line 414 "mini_l.y" /* yacc.c:1646  */
     {
                       (yyval.e).code = (yyvsp[0].e).code;
                       (yyval.e).result_id = (yyvsp[0].e).result_id;
                     }
-#line 1839 "y.tab.c" /* yacc.c:1646  */
+#line 1879 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 34:
-#line 379 "mini_l.y" /* yacc.c:1646  */
+#line 419 "mini_l.y" /* yacc.c:1646  */
     {
                       ostringstream oss;
                       string x = new_temp();
@@ -1850,11 +1890,11 @@ yyreduce:
                       (yyval.e).code = strdup(oss.str().c_str());
                       (yyval.e).result_id = strdup(x.c_str());
                     }
-#line 1854 "y.tab.c" /* yacc.c:1646  */
+#line 1894 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 35:
-#line 391 "mini_l.y" /* yacc.c:1646  */
+#line 431 "mini_l.y" /* yacc.c:1646  */
     {
                   ostringstream oss;
                   string x = new_temp();
@@ -1864,121 +1904,121 @@ yyreduce:
                   (yyval.e).code = strdup(oss.str().c_str());
                   (yyval.e).result_id = strdup(x.c_str());
                 }
-#line 1868 "y.tab.c" /* yacc.c:1646  */
+#line 1908 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 36:
-#line 401 "mini_l.y" /* yacc.c:1646  */
+#line 441 "mini_l.y" /* yacc.c:1646  */
     {
 				  ostringstream oss;
 				  oss << "1";
 				  (yyval.e).result_id = strdup(oss.str().c_str());
 				}
-#line 1878 "y.tab.c" /* yacc.c:1646  */
+#line 1918 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 37:
-#line 407 "mini_l.y" /* yacc.c:1646  */
+#line 447 "mini_l.y" /* yacc.c:1646  */
     {
 				  ostringstream oss;
 				  oss << "0";
 				  (yyval.e).result_id = strdup(oss.str().c_str());				
 				}
-#line 1888 "y.tab.c" /* yacc.c:1646  */
+#line 1928 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 38:
-#line 414 "mini_l.y" /* yacc.c:1646  */
+#line 454 "mini_l.y" /* yacc.c:1646  */
     {
 				  (yyval.e).code = (yyvsp[-1].e).code;
 				  (yyval.e).result_id = (yyvsp[-1].e).result_id;
 				}
-#line 1897 "y.tab.c" /* yacc.c:1646  */
-    break;
-
-  case 39:
-#line 418 "mini_l.y" /* yacc.c:1646  */
-    {printf("relation_expr . NOT expression comp expression \n");}
-#line 1903 "y.tab.c" /* yacc.c:1646  */
-    break;
-
-  case 40:
-#line 419 "mini_l.y" /* yacc.c:1646  */
-    {printf("relation_expr . NOT TRUE \n");}
-#line 1909 "y.tab.c" /* yacc.c:1646  */
-    break;
-
-  case 41:
-#line 420 "mini_l.y" /* yacc.c:1646  */
-    {printf("relation_expr . NOT FALSE \n");}
-#line 1915 "y.tab.c" /* yacc.c:1646  */
-    break;
-
-  case 42:
-#line 421 "mini_l.y" /* yacc.c:1646  */
-    {printf("relation_expr . NOT L_PAREN bool_expr R_PAREN \n");}
-#line 1921 "y.tab.c" /* yacc.c:1646  */
-    break;
-
-  case 43:
-#line 424 "mini_l.y" /* yacc.c:1646  */
-    {
-                  (yyval.c).optr = "==";
-                }
-#line 1929 "y.tab.c" /* yacc.c:1646  */
-    break;
-
-  case 44:
-#line 428 "mini_l.y" /* yacc.c:1646  */
-    {
-                  (yyval.c).optr = "!=";
-                }
 #line 1937 "y.tab.c" /* yacc.c:1646  */
     break;
 
-  case 45:
-#line 432 "mini_l.y" /* yacc.c:1646  */
-    {
-                  (yyval.c).optr = "<";
-                }
-#line 1945 "y.tab.c" /* yacc.c:1646  */
+  case 39:
+#line 458 "mini_l.y" /* yacc.c:1646  */
+    {printf("relation_expr . NOT expression comp expression \n");}
+#line 1943 "y.tab.c" /* yacc.c:1646  */
     break;
 
-  case 46:
-#line 436 "mini_l.y" /* yacc.c:1646  */
-    {
-                  (yyval.c).optr = ">";
-                }
-#line 1953 "y.tab.c" /* yacc.c:1646  */
+  case 40:
+#line 459 "mini_l.y" /* yacc.c:1646  */
+    {printf("relation_expr . NOT TRUE \n");}
+#line 1949 "y.tab.c" /* yacc.c:1646  */
     break;
 
-  case 47:
-#line 440 "mini_l.y" /* yacc.c:1646  */
-    {
-                  (yyval.c).optr = "<=";
-                }
+  case 41:
+#line 460 "mini_l.y" /* yacc.c:1646  */
+    {printf("relation_expr . NOT FALSE \n");}
+#line 1955 "y.tab.c" /* yacc.c:1646  */
+    break;
+
+  case 42:
+#line 461 "mini_l.y" /* yacc.c:1646  */
+    {printf("relation_expr . NOT L_PAREN bool_expr R_PAREN \n");}
 #line 1961 "y.tab.c" /* yacc.c:1646  */
     break;
 
-  case 48:
-#line 444 "mini_l.y" /* yacc.c:1646  */
+  case 43:
+#line 464 "mini_l.y" /* yacc.c:1646  */
     {
-                  (yyval.c).optr = ">=";
+                  (yyval.c).optr = "==";
                 }
 #line 1969 "y.tab.c" /* yacc.c:1646  */
     break;
 
+  case 44:
+#line 468 "mini_l.y" /* yacc.c:1646  */
+    {
+                  (yyval.c).optr = "!=";
+                }
+#line 1977 "y.tab.c" /* yacc.c:1646  */
+    break;
+
+  case 45:
+#line 472 "mini_l.y" /* yacc.c:1646  */
+    {
+                  (yyval.c).optr = "<";
+                }
+#line 1985 "y.tab.c" /* yacc.c:1646  */
+    break;
+
+  case 46:
+#line 476 "mini_l.y" /* yacc.c:1646  */
+    {
+                  (yyval.c).optr = ">";
+                }
+#line 1993 "y.tab.c" /* yacc.c:1646  */
+    break;
+
+  case 47:
+#line 480 "mini_l.y" /* yacc.c:1646  */
+    {
+                  (yyval.c).optr = "<=";
+                }
+#line 2001 "y.tab.c" /* yacc.c:1646  */
+    break;
+
+  case 48:
+#line 484 "mini_l.y" /* yacc.c:1646  */
+    {
+                  (yyval.c).optr = ">=";
+                }
+#line 2009 "y.tab.c" /* yacc.c:1646  */
+    break;
+
   case 49:
-#line 449 "mini_l.y" /* yacc.c:1646  */
+#line 489 "mini_l.y" /* yacc.c:1646  */
     {                  
                   (yyval.e).result_id = (yyvsp[0].e).result_id;
                   (yyval.e).code = (yyvsp[0].e).code;
                 }
-#line 1978 "y.tab.c" /* yacc.c:1646  */
+#line 2018 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 50:
-#line 454 "mini_l.y" /* yacc.c:1646  */
+#line 494 "mini_l.y" /* yacc.c:1646  */
     {
                   ostringstream oss;
                   oss << (yyvsp[-2].e).code << (yyvsp[0].e).code;
@@ -1988,11 +2028,11 @@ yyreduce:
                   (yyval.e).code = strdup(oss.str().c_str());
                   (yyval.e).result_id = strdup(x.c_str());
                 }
-#line 1992 "y.tab.c" /* yacc.c:1646  */
+#line 2032 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 51:
-#line 464 "mini_l.y" /* yacc.c:1646  */
+#line 504 "mini_l.y" /* yacc.c:1646  */
     {
                   ostringstream oss;
                   oss << (yyvsp[-2].e).code << (yyvsp[0].e).code;
@@ -2002,11 +2042,11 @@ yyreduce:
                   (yyval.e).code = strdup(oss.str().c_str());
                   (yyval.e).result_id = strdup(x.c_str());
                 }
-#line 2006 "y.tab.c" /* yacc.c:1646  */
+#line 2046 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 52:
-#line 475 "mini_l.y" /* yacc.c:1646  */
+#line 515 "mini_l.y" /* yacc.c:1646  */
     {	
 						if (strlen((yyvsp[0].e).code) > 0){
 						  if ((yyvsp[0].e).is_array){
@@ -2034,11 +2074,11 @@ yyreduce:
 						  (yyval.e).result_id = strdup(x.c_str());
 						}
                       }
-#line 2038 "y.tab.c" /* yacc.c:1646  */
+#line 2078 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 53:
-#line 503 "mini_l.y" /* yacc.c:1646  */
+#line 543 "mini_l.y" /* yacc.c:1646  */
     {
                         ostringstream oss;
                         oss << (yyvsp[-2].e).code << (yyvsp[0].e).code;
@@ -2048,11 +2088,11 @@ yyreduce:
                         (yyval.e).code = strdup(oss.str().c_str());
                         (yyval.e).result_id = strdup(x.c_str());
                       }
-#line 2052 "y.tab.c" /* yacc.c:1646  */
+#line 2092 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 54:
-#line 513 "mini_l.y" /* yacc.c:1646  */
+#line 553 "mini_l.y" /* yacc.c:1646  */
     {
                         ostringstream oss;
                         string x = new_temp();
@@ -2062,11 +2102,11 @@ yyreduce:
                         (yyval.e).code = strdup(oss.str().c_str());
                         (yyval.e).result_id = strdup(x.c_str()); 
                       }
-#line 2066 "y.tab.c" /* yacc.c:1646  */
+#line 2106 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 55:
-#line 523 "mini_l.y" /* yacc.c:1646  */
+#line 563 "mini_l.y" /* yacc.c:1646  */
     {
                         ostringstream oss;
                         oss << (yyvsp[-2].e).code << (yyvsp[0].e).code;
@@ -2076,55 +2116,55 @@ yyreduce:
                         (yyval.e).code = strdup(oss.str().c_str());
                         (yyval.e).result_id = strdup(x.c_str());
                       }
-#line 2080 "y.tab.c" /* yacc.c:1646  */
+#line 2120 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 56:
-#line 534 "mini_l.y" /* yacc.c:1646  */
+#line 574 "mini_l.y" /* yacc.c:1646  */
     {
                   (yyval.e).result_id = (yyvsp[0].e).result_id;
                 }
-#line 2088 "y.tab.c" /* yacc.c:1646  */
+#line 2128 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 57:
-#line 538 "mini_l.y" /* yacc.c:1646  */
+#line 578 "mini_l.y" /* yacc.c:1646  */
     {
 			      (yyval.e).code = "";		 	
                   (yyval.e).result_id = strdup(to_string((yyvsp[0].int_val)).c_str());
                 }
-#line 2097 "y.tab.c" /* yacc.c:1646  */
+#line 2137 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 58:
-#line 543 "mini_l.y" /* yacc.c:1646  */
+#line 583 "mini_l.y" /* yacc.c:1646  */
     {
 				  (yyval.e).code = (yyvsp[-1].e).code;
 				  (yyval.e).result_id = (yyvsp[-1].e).result_id;
 				}
-#line 2106 "y.tab.c" /* yacc.c:1646  */
+#line 2146 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 59:
-#line 547 "mini_l.y" /* yacc.c:1646  */
+#line 587 "mini_l.y" /* yacc.c:1646  */
     {printf("term . SUB var \n");}
-#line 2112 "y.tab.c" /* yacc.c:1646  */
+#line 2152 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 60:
-#line 548 "mini_l.y" /* yacc.c:1646  */
+#line 588 "mini_l.y" /* yacc.c:1646  */
     {printf("term . SUB NUMBER \n");}
-#line 2118 "y.tab.c" /* yacc.c:1646  */
+#line 2158 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 61:
-#line 549 "mini_l.y" /* yacc.c:1646  */
+#line 589 "mini_l.y" /* yacc.c:1646  */
     {printf("term . SUB L_PAREN expression R_PAREN \n");}
-#line 2124 "y.tab.c" /* yacc.c:1646  */
+#line 2164 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 62:
-#line 551 "mini_l.y" /* yacc.c:1646  */
+#line 591 "mini_l.y" /* yacc.c:1646  */
     {
 				  ostringstream oss;
 				  oss << (yyvsp[-1].e).code;
@@ -2135,54 +2175,54 @@ yyreduce:
 				  (yyval.e).code = strdup(oss.str().c_str());
 				  (yyval.e).result_id = strdup(x.c_str());		  
 				}
-#line 2139 "y.tab.c" /* yacc.c:1646  */
+#line 2179 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 63:
-#line 562 "mini_l.y" /* yacc.c:1646  */
+#line 602 "mini_l.y" /* yacc.c:1646  */
     {printf("termInnerOne . expression COMMA termInnerOne \n");}
-#line 2145 "y.tab.c" /* yacc.c:1646  */
+#line 2185 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 64:
-#line 564 "mini_l.y" /* yacc.c:1646  */
+#line 604 "mini_l.y" /* yacc.c:1646  */
     {
 				  (yyval.e).code = (yyvsp[0].e).code;
                   (yyval.e).result_id = (yyvsp[0].e).result_id;
 				}
-#line 2154 "y.tab.c" /* yacc.c:1646  */
+#line 2194 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 65:
-#line 569 "mini_l.y" /* yacc.c:1646  */
+#line 609 "mini_l.y" /* yacc.c:1646  */
     {
 				  (yyval.e).code = "";
 				  (yyval.e).result_id = "";
 				}
-#line 2163 "y.tab.c" /* yacc.c:1646  */
+#line 2203 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 66:
-#line 575 "mini_l.y" /* yacc.c:1646  */
+#line 615 "mini_l.y" /* yacc.c:1646  */
     { 
                   (yyval.e).result_id = (yyvsp[0].e).result_id;
                 }
-#line 2171 "y.tab.c" /* yacc.c:1646  */
+#line 2211 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 67:
-#line 579 "mini_l.y" /* yacc.c:1646  */
+#line 619 "mini_l.y" /* yacc.c:1646  */
     {
 				  (yyval.e).arr_name = (yyvsp[-3].e).result_id;
 				  (yyval.e).result_id = (yyvsp[-1].e).result_id;
 				  (yyval.e).is_array = TRUE;
 				  (yyval.e).code = (yyvsp[-1].e).code;
                 }
-#line 2182 "y.tab.c" /* yacc.c:1646  */
+#line 2222 "y.tab.c" /* yacc.c:1646  */
     break;
 
 
-#line 2186 "y.tab.c" /* yacc.c:1646  */
+#line 2226 "y.tab.c" /* yacc.c:1646  */
       default: break;
     }
   /* User semantic actions sometimes alter yychar, and that requires
@@ -2410,7 +2450,7 @@ yyreturn:
 #endif
   return yyresult;
 }
-#line 586 "mini_l.y" /* yacc.c:1906  */
+#line 626 "mini_l.y" /* yacc.c:1906  */
 
 
 void yyerror(const char* s) {
