@@ -46,6 +46,7 @@ string new_temp(){
   struct statement_semval {
 	 char *code;
 	 char *result_id;
+	 char *label;
   } s;
 
   struct expression_semval {
@@ -226,19 +227,39 @@ statement:      var ASSIGN expression
 				  string n = new_label();
 				  
 				  ostringstream oss;
+				  oss << ":= " << $4.label << endl;
 				  oss << ": " << n << endl;
 				  oss << $2.code;
 				  oss << "?:= " << l << ", " << $2.result_id << endl;
 				  oss << ":= " << m << endl;
 				  oss << ": " << l << endl;
 				  oss << $4.code;
+				  
+				  oss << ": " << $4.label << endl;
 				  oss << ":= " << n << endl;
 				  oss << ": " << m << endl;
 				  
 				  $$.code = strdup(oss.str().c_str());
 				  
 				}
-                | DO BEGINLOOP stateInnerOne ENDLOOP WHILE bool_expr {printf("statement . DO BEGINLOOP stateInnerOne ENDLOOP WHILE bool_expr \n");}
+                | DO BEGINLOOP stateInnerOne ENDLOOP WHILE bool_expr 
+                {
+				  string l = new_label();
+				  string m = new_label();
+				  string n = new_label();
+				  string o = new_label();
+				  
+				  ostringstream oss;
+				  oss << ": " << l << endl;
+				  oss << $3.code;
+				  oss << ": " << n << endl;
+				  oss << ": " << o << endl;
+				  oss << $6.code;
+				  oss << ": " << m << endl;
+				  
+				  $$.code = strdup(oss.str().c_str());
+				  
+				}
                 | FOR var ASSIGN NUMBER SEMICOLON bool_expr SEMICOLON var ASSIGN expression BEGINLOOP stateInnerOne ENDLOOP 
                 {}
                 | READ stateInnerTwo 
@@ -258,9 +279,9 @@ statement:      var ASSIGN expression
                 | CONTINUE 
                 {
                   ostringstream oss;
-                  string x = new_label();
-                  oss << ":= x" << endl;
-                  oss << ": " << x << endl;
+                  string l = new_label();
+                  oss << ":= " << l << endl;
+                  $$.label = strdup(l.c_str());
                   $$.code = strdup(oss.str().c_str());
                 }
                 | RETURN expression 
