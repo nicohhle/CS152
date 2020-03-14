@@ -246,7 +246,7 @@ statement:      var ASSIGN expression
 				  string n = new_label();
 				  ostringstream oss;
 				  
-				  if ($4.label == NULL || strstr($4.label, "__label__") == NULL){
+				  if ($4.label == NULL){
 					  oss << ": " << l << endl;
 					  oss << $2.code;
 					  oss << "== " << n << ", " << $2.result_id << ", " << "0" << endl;
@@ -276,15 +276,13 @@ statement:      var ASSIGN expression
 				  string m = new_label();
 				  string n = new_label();
 				  ostringstream oss;
-				 
-				  if ($3.label == NULL || strstr($3.label, "__label__") == NULL){
+				  				  
+				  if ($3.label == NULL){
 					  oss << ": " << l << endl;
 					  oss << $3.code << $6.code;
-					  oss << "?:= " << l << ", " << $6.result_id << endl;
-					  
+					  oss << "?:= " << l << ", " << $6.result_id << endl;  
 				  }
 				  else {
-					  cout << "check do" << $3.label << endl;
 					  oss << ": " << l << endl;
 					  oss << $3.code;
 					  oss << ": " << $3.label << endl;
@@ -334,6 +332,7 @@ statement:      var ASSIGN expression
                 }
                 | WRITE stateInnerTwo 
                 {
+				  
 				  ostringstream oss;
 				  oss << $2.code;
 				  
@@ -375,6 +374,7 @@ statement:      var ASSIGN expression
                   oss << ":= " << l << endl;
                   $$.label = strdup(l.c_str());
                   $$.code = strdup(oss.str().c_str());
+                  $$.result_id = strdup(l.c_str());
                 }
                 | RETURN expression 
                 {
@@ -389,12 +389,41 @@ stateInnerOne:  statement SEMICOLON stateInnerOne
 				  ostringstream oss;
 				  oss << $1.code << $3.code;
 				  $$.code = strdup(oss.str().c_str());
+				  
+				  ostringstream ossStatementLabel;
+				  ostringstream ossStateInnerOneLabel;
+				  
+				  ossStatementLabel << $1.label;
+				  ossStateInnerOneLabel << $3.label;
+				  
+				  /*if (strstr($1.code, "label") != NULL){
+					  $$.label = $1.label;
+					  cout << "here" << $$.label << endl;
+				  }*/
+				  
+				  if (ossStatementLabel.str().length() > 0) {
+					  $$.label = strdup(ossStatementLabel.str().c_str());
+			      } else {
+					  $$.label = strdup(ossStateInnerOneLabel.str().c_str());
+			      }
 				}
                 | statement SEMICOLON 
-				{
+				{ 
 				  $$.code = $1.code;
 				  $$.result_id = $1.result_id;
-				}
+				  
+				  ostringstream oss;
+				  oss << $1.label;
+				  string label = oss.str();
+				  
+				  cout << "LABEL LENGTH IS: " << label.length() << endl;
+				  
+				  if (label.length() > 0) {
+					  $$.label = $1.label;
+				  } else {
+					  $$.label = "";
+				  }
+				 }
                 ;
 stateInnerTwo:  var 
 				{

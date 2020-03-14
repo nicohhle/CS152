@@ -1,0 +1,46 @@
+func main
+. n
+. i
+. j
+. k
+.[] t, 20
+
+
+
+. __temp__0
+= __temp__0, 0
+= k, __temp__0
+. __temp__1
+= __temp__1, 20
+= n, __temp__1
+
+
+
+: __label__1
+.> k
+. __temp__2
+= __temp__2, k
+. __temp__3
+= __temp__3, 1
+. __temp__4
++ __temp__4, __temp__2, __temp__3
+= k, __temp__4
+:= __label__0
+. __temp__5
+= __temp__5, k
+. __temp__6
+= __temp__6, 2
+. __temp__7
++ __temp__7, __temp__5, __temp__6
+= k, __temp__7
+
+
+. __temp__8
+= __temp__8, k
+. __temp__9
+= __temp__9, n
+. __temp__10
+< __temp__10, __temp__8, __temp__9
+?:= __label__1, __temp__10
+endfunc
+

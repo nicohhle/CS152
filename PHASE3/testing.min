@@ -15,8 +15,8 @@ beginbody
   
   do 
     beginloop
-       write k;
-       k := k + 1;
+		continue;
+		k := k + 1;
     endloop
   while k < n;
 endbody
