@@ -249,6 +249,7 @@ statement:      var ASSIGN expression
 				  if ($4.label == NULL){
 					  oss << ": " << l << endl;
 					  oss << $2.code;
+					  oss << ". " << n << endl;
 					  oss << "== " << n << ", " << $2.result_id << ", " << "0" << endl;
 					  oss << "?:= " << l << ", " << n << endl;
 					  oss << $4.code;
@@ -258,6 +259,7 @@ statement:      var ASSIGN expression
 				  else {
 				  	  oss << ": " << l << endl;
 					  oss << $2.code;
+					  oss << ". " << n << endl;
 					  oss << "== " << n << ", " << $2.result_id << ", " << "0" << endl;
 					  oss << "?:= " << l << ", " << n << endl;
 					  oss << $4.code;
@@ -277,7 +279,7 @@ statement:      var ASSIGN expression
 				  string n = new_label();
 				  ostringstream oss;
 				  				  
-				  if ($3.label == NULL){
+				  if (strlen($3.label) <= 0){
 					  oss << ": " << l << endl;
 					  oss << $3.code << $6.code;
 					  oss << "?:= " << l << ", " << $6.result_id << endl;  
