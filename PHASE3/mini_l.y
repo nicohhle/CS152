@@ -415,9 +415,7 @@ stateInnerOne:  statement SEMICOLON stateInnerOne
 				  ostringstream oss;
 				  oss << $1.label;
 				  string label = oss.str();
-				  
-				  cout << "LABEL LENGTH IS: " << label.length() << endl;
-				  
+				  				  
 				  if (label.length() > 0) {
 					  $$.label = $1.label;
 				  } else {
