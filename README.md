@@ -9,8 +9,6 @@
   - primes.min
   - mytest.min
 
-- Error checking:
-
 ## Incompleted
 - Incomplete code generations for:
   - for loops
