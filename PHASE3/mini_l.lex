@@ -8,6 +8,7 @@
    #include "y.tab.h"
    
    int currLine = 1, currPos = 1;
+   char* programName;
 %}
 
 VAR	 	[a-zA-Z]+[a-zA-Z_0-9]*
@@ -88,8 +89,11 @@ BADVAR_UND	[a-zA-Z]+[a-zA-Z_0-9]*_+
 int yyparse();
 int yylex();
 
-int main(int argc, char ** argv)
+int main(int argc, char *argv[])
 {
+   
+  programName = strdup(argv[1]);
+
   //yylex();
   yyparse();
   

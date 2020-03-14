@@ -1,62 +1,175 @@
-##  primes.min: compute primes using Sieve of Eratosthenes
-##  (http://en.wikipedia.org/wiki/Sieve_of_Eratosthenes)
-##
-##  Compute primes up to a specified n by crossing out multiples of successively
-##  larger primes in a boolean array.  The array stores a[k] = 1 if k is composite
-##  (not prime), and a[k] = 0 if k is not divisible by the divisors considered
-##  thus far.
-## 
-##  Requires a specified integer n as input, assumed to be < 1000.
+func main
+. n
+.[] a, 1000
+. i
+. j
+. x
+. sqrt_n
+.< n
+. __temp__0
+= __temp__0, n
+= x, __temp__0
+: __label__2
+. __temp__1
+= __temp__1, x
+. __temp__2
+= __temp__2, x
+. __temp__3
+/ __temp__3, n, __temp__2
+. __temp__4
+> __temp__4, __temp__1, __temp__3
+?:= __label__0, __temp__4
+:= __label__1
+: __label__0
+. __temp__5
+= __temp__5, x
+. __temp__6
+= __temp__6, x
+. __temp__7
+/ __temp__7, n, __temp__6
+. __temp__8
++ __temp__8, __temp__5, __temp__7
+. __temp__9
+= __temp__9, 2
+. __temp__10
+/ __temp__10, __temp__8, __temp__9
+= x, __temp__10
+: 
+:= __label__2
+: __label__1
+. __temp__11
+= __temp__11, x
+= sqrt_n, __temp__11
+. __temp__12
+= __temp__12, 2
+= i, __temp__12
+: __label__5
+. __temp__13
+= __temp__13, i
+. __temp__14
+= __temp__14, n
+. __temp__15
+<= __temp__15, __temp__13, __temp__14
+?:= __label__3, __temp__15
+:= __label__4
+: __label__3
+. __temp__16
+= __temp__16, i
+. __temp__17
+= __temp__17, 0
+[]= a, __temp__16, __temp__17
+. __temp__18
+= __temp__18, i
+. __temp__19
+= __temp__19, 1
+. __temp__20
++ __temp__20, __temp__18, __temp__19
+= i, __temp__20
+: 
+:= __label__5
+: __label__4
+. __temp__21
+= __temp__21, 2
+= i, __temp__21
+: __label__13
+. __temp__22
+= __temp__22, i
+. __temp__23
+= __temp__23, sqrt_n
+. __temp__24
+<= __temp__24, __temp__22, __temp__23
+?:= __label__11, __temp__24
+:= __label__12
+: __label__11
+. __temp__25
+= __temp__25, i
+. __temp__26
+=[] __temp__26, a, __temp__25
+. __temp__27
+= __temp__27, 0
+. __temp__28
+== __temp__28, __temp__26, __temp__27
+?:= __label__9, __temp__28
+:= __label__10
+: __label__9
+. __temp__29
+= __temp__29, i
+. __temp__30
+= __temp__30, i
+. __temp__31
++ __temp__31, __temp__29, __temp__30
+= j, __temp__31
+: __label__8
+. __temp__32
+= __temp__32, j
+. __temp__33
+= __temp__33, n
+. __temp__34
+<= __temp__34, __temp__32, __temp__33
+?:= __label__6, __temp__34
+:= __label__7
+: __label__6
+. __temp__35
+= __temp__35, j
+. __temp__36
+= __temp__36, 1
+[]= a, __temp__35, __temp__36
+. __temp__37
+= __temp__37, j
+. __temp__38
+= __temp__38, i
+. __temp__39
++ __temp__39, __temp__37, __temp__38
+= j, __temp__39
+: 
+:= __label__8
+: __label__7
+: __label__10
+. __temp__40
+= __temp__40, i
+. __temp__41
+= __temp__41, 1
+. __temp__42
++ __temp__42, __temp__40, __temp__41
+= i, __temp__42
+: 
+:= __label__13
+: __label__12
+. __temp__43
+= __temp__43, 2
+= i, __temp__43
+: __label__18
+. __temp__44
+= __temp__44, i
+. __temp__45
+= __temp__45, n
+. __temp__46
+<= __temp__46, __temp__44, __temp__45
+?:= __label__16, __temp__46
+:= __label__17
+: __label__16
+. __temp__47
+= __temp__47, i
+. __temp__48
+=[] __temp__48, a, __temp__47
+. __temp__49
+= __temp__49, 0
+. __temp__50
+== __temp__50, __temp__48, __temp__49
+?:= __label__14, __temp__50
+:= __label__15
+: __label__14
+.> i
+: __label__15
+. __temp__51
+= __temp__51, i
+. __temp__52
+= __temp__52, 1
+. __temp__53
++ __temp__53, __temp__51, __temp__52
+= i, __temp__53
+: 
+:= __label__18
+: __label__17
+endfunc
 
-function main;
-beginparams
-endparams
-
-beginlocals
-
-n : integer;
-a : array[1000] of integer;	## prime candidates array
-i, j : integer;
-x, sqrt_n : integer;
-
-endlocals
-
-beginbody	## main program
-    ## compute the square root of n and put the result in sqrt_n
-    read n;
-    x := n;
-    while x > n / x beginloop
-	    x := (x+n / x) / 2;
-    endloop;
-    sqrt_n := x;
-
-    ## initialization of the array
-    i := 2;
-    while i <= n beginloop
-	    a[i] := 0;
-	    i := i + 1;
-    endloop;
-
-    ## make the array
-    i := 2;
-    while i <= sqrt_n beginloop
-	    if a[i] == 0 then
-          ## i prime, so eliminate its multiples
-	       j := i+i;
-	       while j <= n beginloop
-		       a[j] := 1;
-		       j := j+i;
-	       endloop;
-       endif;
-       i := i + 1;
-    endloop;
-
-    ## print primes
-    i := 2;
-    while i <= n beginloop
-	    if a[i] == 0 then
-	       write i;
-       endif;
-       i := i + 1;
-   endloop;
-endbody

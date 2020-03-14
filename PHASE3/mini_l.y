@@ -3,6 +3,8 @@
 #include <stdio.h>
 #include <string>
 #include <cstring>
+#include <vector>
+#include <set>
 #include <stdlib.h>
 #include <stdbool.h>
 #include "y.tab.h"
@@ -18,6 +20,7 @@ int yylex(void);
 extern int currLine;
 extern int currPos;
 extern char* yytext;
+extern char* programName;
   
 int labelCount = 0;
 int tempCount = 0;
@@ -36,6 +39,17 @@ string new_temp(){
   tempCount += 1;
   return x;
 }
+
+bool isReserved = false;
+
+set<string> functionSet;
+set<string> variableSet;
+string errors;
+vector<string> reservedWords = {"FUNCTION", "BEGIN_PARAMS", "END_PARAMS", "BEGIN_LOCALS", "END_LOCALS", "BEGIN_BODY", "END_BODY", "INTEGER",
+    "ARRAY", "OF", "IF", "THEN", "ENDIF", "ELSE", "WHILE", "DO", "FOREACH", "IN", "BEGINLOOP", "ENDLOOP", "CONTINUE", "READ", "WRITE", "AND", "OR", 
+    "NOT", "TRUE", "FALSE", "RETURN", "SUB", "ADD", "MULT", "DIV", "MOD", "EQ", "NEQ", "LT", "GT", "LTE", "GTE", "L_PAREN", "R_PAREN", "L_SQUARE_BRACKET",
+    "R_SQUARE_BRACKET", "COLON", "SEMICOLON", "COMMA", "ASSIGN", "function", "Ident", "beginparams", "endparams", "beginlocals", "endlocals", "integer", 
+    "beginbody", "endbody", "beginloop", "endloop", "if", "endif", "foreach", "continue", "while", "else", "read", "do", "write"};
 
 %}
 
@@ -73,12 +87,37 @@ string new_temp(){
 %token <op_val> IDENT
 
 %type <s> prog_start progInner function funcInnerLocals funcInnerTwo funcInnerParams statement stateInnerOne stateInnerTwo
-%type <e> bool_expr var ident termInnerOne expression multiplicative_expr term declaration decInner relation_expr relation_and_expr
+%type <e> bool_expr var addFunc ident termInnerOne expression multiplicative_expr term declaration decInner relation_expr relation_and_expr
 %type <c> comp
 %%
 
 prog_start:     progInner {
-                  cout << $1.code;
+                  for (auto it=variableSet.begin(); it != variableSet.end(); ++it) 
+                    cout << ' ' << *it; 
+                    cout << endl;
+
+                  // Check if function main is declared (test 03)
+                  if (functionSet.count("main") == 0) {
+                    string errormessage;
+                    errormessage = "ERROR on line " + to_string(currLine) + ": function main not declared\n";
+                    errors += errormessage;
+                  }
+
+                  // Check if variable name is same as program name (test 04)
+                  // cout << programName << endl;
+                  if (variableSet.count(programName) != 0) {
+                    string errormessage;
+                    errormessage = "ERROR on line " + to_string(currLine) + ": declared program name as variable\n";
+                    errors += errormessage;
+                  }
+
+                  // Check if any errors --> end program and output errors if so
+                  if (errors.size() != 0) {
+                    cout << errors;
+                    exit(1);
+                  } else {
+                    cout << $1.code;
+                  }
                 }
                 ;
 progInner:      function progInner {
@@ -90,17 +129,38 @@ progInner:      function progInner {
                   $$.code = "";
                 }
                 ;
-function:       FUNCTION ident SEMICOLON BEGIN_PARAMS funcInnerParams END_PARAMS BEGIN_LOCALS funcInnerLocals END_LOCALS BEGIN_BODY funcInnerTwo END_BODY 
+function:       FUNCTION addFunc SEMICOLON BEGIN_PARAMS funcInnerParams END_PARAMS BEGIN_LOCALS funcInnerLocals END_LOCALS BEGIN_BODY funcInnerTwo END_BODY 
                 {
                   ostringstream oss;
+                  string temp = $2.result_id;
+                  
                   oss << "func " << $2.result_id << endl;
-                  oss << $5.code << $8.code << $11.code;
+                  oss << $5.code << $8.code;
+
+                  string findContinue($11.code);
+
+                  // Check for any leftover continues (test 09)
+                  if (findContinue.find("continue") != std::string::npos) {
+                    string temp = $2.result_id;
+                    string errormessage;
+                    errormessage = "ERROR on line " + to_string(currLine) + ": continue outside loop in function " + temp+ "\n";
+                    errors += errormessage;
+                  }
+                  oss << $11.code;
+
                   $$.code = strdup(oss.str().c_str());
                 }
                 ;
+addFunc:      ident {
+                // Add func name to function set
+                functionSet.insert($1.result_id);
+                  
+                $$.result_id = $1.result_id;
+              }
+
 ident:          IDENT
                 {
-				  $$.code = "";
+				          $$.code = "";
                   $$.result_id = $1;
                 }
                 ;
@@ -114,8 +174,8 @@ funcInnerParams:    declaration SEMICOLON funcInnerParams
                     }
                     |
                     {
-					  $$.code = "";
-					  $$.result_id = "";
+                      $$.code = "";
+                      $$.result_id = "";
                     }
                     ;
 funcInnerLocals:    declaration SEMICOLON funcInnerLocals 
@@ -147,50 +207,149 @@ funcInnerTwo:   statement SEMICOLON funcInnerTwo
                 ;
 declaration:    decInner COLON INTEGER
                 {
-				  if (strchr($1.result_id, '#') == NULL){
-				    ostringstream oss;
-				    oss << ". " << $1.result_id << endl;
-				    $$.code = strdup(oss.str().c_str());
-				    $$.result_id = $1.result_id;
-				  }
-				  else {
-				    char curr = $1.result_id[0];
-				    int count = 0;
-				    ostringstream oss;
-				    while (count < strlen($1.result_id)){
-					  ostringstream lss;
-					  curr = $1.result_id[count];
+                  if (strchr($1.result_id, '#') == NULL){
+                    ostringstream oss;
+                    oss << ". " << $1.result_id << endl;
+                    $$.code = strdup(oss.str().c_str());
+                    $$.result_id = $1.result_id;
+                  }
+                  else {
+                    char curr = $1.result_id[0];
+                    int count = 0;
+                    ostringstream oss;
+                    while (count < strlen($1.result_id)){
+                    ostringstream lss;
+                    curr = $1.result_id[count];
 
-					  while ((curr != '#') && count < strlen($1.result_id)){
-					    lss << curr;
-					    count += 1;
-					    curr = $1.result_id[count];
-					  }
-					  oss << ". " << lss.str().c_str() << endl;
-					  count += 1;
-					}
-					$$.code = strdup(oss.str().c_str());
-					$$.result_id = $1.result_id;
-				  }
+                    while ((curr != '#') && count < strlen($1.result_id)){
+                      lss << curr;
+                      count += 1;
+                      curr = $1.result_id[count];
+                    }
+                    oss << ". " << lss.str().c_str() << endl;
+                    count += 1;
+                  }
+
+                  // Check for declaration of a reserved word (test 05)
+                  // string errormessage = "";
+                  // string temp = $1.result_id;
+                  // for (unsigned int i = 0; i < reservedWords.size(); ++i) {
+                  //   if (reservedWords.at(i) == temp) {
+                  //     string errormessage;
+                  //     errormessage = "ERROR on line " + to_string(currLine) + ": invalid declaration of reserved word " + temp + "\n";
+                  //     errors += errormessage;
+
+                  //     isReserved = true;
+                  //   }
+                  // } 
+
+                  // if (variableSet.count(temp) != 0) {
+                  //   string errormessage;
+                  //   errormessage = "ERROR on line " +  to_string(currLine) + ": redeclaration of variable " + temp + "\n";
+                  //   errors += errormessage;
+                  // }
+                  // else if (isReserved){
+                  //   string errormessage;
+                  //   errormessage = "ERROR on line " + to_string(currLine) + ": invalid declaration of reserved word " + temp + "\n";
+                  //   errors += errormessage;
+                  // }
+                  // else {
+                  //   variableSet.insert(temp);
+                  // }
+
+                  $$.code = strdup(oss.str().c_str());
+                  $$.result_id = $1.result_id;
+                  }
                 }
                 | decInner COLON ARRAY L_SQUARE_BRACKET NUMBER R_SQUARE_BRACKET OF INTEGER 
                 {
-				  ostringstream oss;
-				  oss << ".[] " << $1.result_id << ", " << $5 << endl;
-				  $$.arr_size = strdup(to_string($5).c_str());
- 				  $$.code = strdup(oss.str().c_str());
-				}
+                  
+                  // Check if declaring arrays of size <= 0 (test 08)
+                   if ($5 <= 0) {
+                    string errormessage;
+                    errormessage = "ERROR on line " + to_string(currLine) + ": array size can't be less than 1\n";
+                    errors += errormessage;
+                  }
+
+                  ostringstream oss;
+                  oss << ".[] " << $1.result_id << ", " << $5 << endl;
+
+                  // string temp = $1.result_id;
+                  // if (variableSet.count(temp) != 0) {
+                  //   string errormessage;
+                  //   errormessage = "ERROR on line " +  to_string(currLine) + ": redeclaration of variable " + temp + "\n";
+                  //   errors += errormessage;
+                  // }
+                  // else if (isReserved){
+                  //   string errormessage;
+                  //   errormessage = "ERROR on line " + to_string(currLine) + ": invalid declaration of reserved word " + temp + "\n";
+                  //   errors += errormessage;
+                  // }
+                  // else {
+                  //   variableSet.insert(temp);
+                  // }
+
+                  $$.arr_size = strdup(to_string($5).c_str());
+                  $$.code = strdup(oss.str().c_str());
+                }
                 ;
 decInner:       ident 
                 {
-				  
+                  string temp = $1.result_id;
+                  for (unsigned int i = 0; i < reservedWords.size(); ++i) {
+                    if (reservedWords.at(i) == temp) {
+                      string errormessage;
+                      errormessage = "ERROR on line " + to_string(currLine) + ": declared reserved word " + temp + "\n";
+                      errors += errormessage;
+                    }
+                  }
+                  
+                  if (variableSet.count(temp) != 0) {
+                    string errormessage;
+                    errormessage = "ERROR on line " +  to_string(currLine) + ": redeclaration of variable " + temp + "\n";
+                    errors += errormessage;
+                  }
+                  else if (isReserved){
+                    string errormessage;
+                    errormessage = "ERROR on line " + to_string(currLine) + ": invalid declaration of reserved word " + temp + "\n";
+                    errors += errormessage;
+                  }
+                  else {
+                    variableSet.insert(temp);
+                  }
                 }
                 | ident COMMA decInner 
                 {
-				  ostringstream oss; 
-				  oss << $1.result_id << "#" << $3.result_id;
-				  $$.result_id = strdup(oss.str().c_str());
-				}
+                  // Check for declaration of a reserved word (test 05)
+                  string temp = $1.result_id;
+                  for (unsigned int i = 0; i < reservedWords.size(); ++i) {
+                    if (reservedWords.at(i) == temp) {
+                      string errormessage;
+                      errormessage = "ERROR on line " + to_string(currLine) + ": declared reserved word " + temp + "\n";
+                      errors += errormessage;
+                    }
+                  } 
+
+                  // string temp = $1.result_id; 
+                  if (variableSet.count(temp) != 0) {
+                    string errormessage;
+                    errormessage = "ERROR on line " +  to_string(currLine) + ": redeclaration of variable " + temp + "\n";
+                    errors += errormessage;
+                  }
+                  else if (isReserved){
+                    string errormessage;
+                    errormessage = "ERROR on line " + to_string(currLine) + ": invalid declaration of reserved word " + temp + "\n";
+                    errors += errormessage;
+                  }
+                  else {
+                    variableSet.insert(temp);
+                  }
+
+                  
+                  ostringstream oss; 
+                  oss << $1.result_id << "#" << $3.result_id;
+                  $$.result_id = strdup(oss.str().c_str());
+                }
                 ;
 statement:      var ASSIGN expression
                 {
@@ -656,6 +815,7 @@ multiplicative_expr:  term
                       ;
 term:           var
                 {
+                  
                   $$.result_id = $1.result_id;
                 }
                 | NUMBER
@@ -690,16 +850,24 @@ term:           var
 					$$.result_id = strdup(oss.str().c_str());
 				}
                 | ident L_PAREN termInnerOne R_PAREN 
-				{
-				  ostringstream oss;
-				  oss << $3.code;
-				  string x = new_temp();
-				  oss << "param " << $3.result_id << endl;
-				  oss << ". " << x << endl;
-				  oss << "call " << $1.result_id << ", " << x << endl;
-				  $$.code = strdup(oss.str().c_str());
-				  $$.result_id = strdup(x.c_str());		  
-				}
+                {
+                  // Check if function has been defined (test 02)
+                  string temp = $1.result_id;
+                  if (functionSet.count(temp) == 0) {
+                    string errormessage;
+                    errormessage = "ERROR on line " + to_string(currLine) + ": function " + temp + " has not been defined\n";
+                    errors += errormessage;
+                  }
+                  
+                  ostringstream oss;
+                  oss << $3.code;
+                  string x = new_temp();
+                  oss << "param " << $3.result_id << endl;
+                  oss << ". " << x << endl;
+                  oss << "call " << $1.result_id << ", " << x << endl;
+                  $$.code = strdup(oss.str().c_str());
+                  $$.result_id = strdup(x.c_str());		  
+                }
                 ;
 termInnerOne:   expression COMMA termInnerOne 
 				{
@@ -708,27 +876,41 @@ termInnerOne:   expression COMMA termInnerOne
 					$$.code = strdup(oss.str().c_str());
 				}
                 | expression 
-				{
-				  $$.code = $1.code;
-                  $$.result_id = $1.result_id;
-				}
+                {
+                  $$.code = $1.code;
+                          $$.result_id = $1.result_id;
+                }
                 | 
-				{
-				  $$.code = "";
-				  $$.result_id = "";
-				}
+                {
+                  $$.code = "";
+                  $$.result_id = "";
+                }
                 ;
 var:            ident
                 { 
+                  // string temp = $1.result_id;
+                  // if (!variableSet.count(temp)) {
+                  //   string errormessage;
+                  //   errormessage = "ERROR on line " +  to_string(currLine) + ": use of undeclared variable " + temp + "\n";
+                  //   errors += errormessage;
+                  // } 
+                  
                   $$.code = "";
                   $$.result_id = $1.result_id;
                 }
                 | ident L_SQUARE_BRACKET expression R_SQUARE_BRACKET
                 {
-				  $$.arr_name = $1.result_id;
-				  $$.result_id = $3.result_id;
-				  $$.is_array = TRUE;
-				  $$.code = $3.code;
+                  // string temp = $1.result_id;
+                  // if (variableSet.count(temp) != 0) {
+                  //   string errormessage;
+                  //   errormessage = "ERROR on line " +  to_string(currLine) + ": use of undeclared variable " + temp + "\n";
+                  //   errors += errormessage;
+                  // } 
+                  
+                  $$.arr_name = $1.result_id;
+                  $$.result_id = $3.result_id;
+                  $$.is_array = TRUE;
+                  $$.code = $3.code;
                 }
                 ;
 %%

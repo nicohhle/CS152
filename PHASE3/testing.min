@@ -17,7 +17,7 @@ beginbody
     beginloop
        t[k] := k;
        k := k + 1;
-       if k % 2 == 0 then
+       if p % 2 == 0 then
            continue;
        endif;
        write t[k-1];
