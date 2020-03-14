@@ -282,22 +282,20 @@ statement:      var ASSIGN expression
 				 
 				  if ($3.label == NULL){
 					  oss << ": " << l << endl;
-					  oss << $3.code;
+					  oss << $3.code << $6.code;
 					  oss << "?:= " << n << ", " << $6.result_id << endl;
-					  oss << ":= " << m << "WHY" <<endl;
+					  oss << ":= " << m <<endl;
 					  oss << ": " << n << endl;
-					  oss << $6.code;
 					  oss << ": " << m << endl; 
 				  }
 				  else {
 					  oss << ": " << l << endl;
-					  oss << $3.code;
+					  oss << $3.code << $6.code;
 					  oss << "?:= " << n << ", " << $6.result_id << endl;
-					  oss << ":= " << m << "HUH" << endl;
+					  oss << ":= " << m << endl;
 					  oss << ":= " << $3.label << endl;
 					  oss << ": " << n << endl;
 					  oss << ": " << $3.label << endl;
-					  oss << $6.code;
 					  oss << ": " << m << endl;
 				  }
 
