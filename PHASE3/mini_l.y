@@ -247,25 +247,28 @@ statement:      var ASSIGN expression
 				  ostringstream oss;
 				  
 				  if ($4.label == NULL){
-					  oss << ": " << l << endl;
+					  oss << ": " << n << endl;
 					  oss << $2.code;
-					  oss << ". " << n << endl;
-					  oss << "== " << n << ", " << $2.result_id << ", " << "0" << endl;
-					  oss << "?:= " << l << ", " << n << endl;
+					  oss << "?:= " << l << ", " << $2.result_id << endl;
+					  oss << ":= " << m << endl;
+					  oss << ": " << l << endl;
+				
 					  oss << $4.code;
-					  oss << ":= " << l << endl;
+					  oss << ":= " << n << endl;
 					  oss << ": " << m << endl;
 				  }
 				  else {
-				  	  oss << ": " << l << endl;
+					  oss << ": " << n << endl;
 					  oss << $2.code;
-					  oss << ". " << n << endl;
-					  oss << "== " << n << ", " << $2.result_id << ", " << "0" << endl;
-					  oss << "?:= " << l << ", " << n << endl;
+					  oss << "?:= " << l << ", " << $2.result_id << endl;
+					  oss << ":= " << m << endl;
+					  oss << ": " << l << endl;
+				
 					  oss << $4.code;
 					  oss << ": " << $4.label << endl;	
-					  oss << ":= " << l << endl;
+					  oss << ":= " << n << endl;
 					  oss << ": " << m << endl;
+					  
 				  }
 				  
 
