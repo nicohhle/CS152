@@ -512,10 +512,37 @@ relation_expr:  expression comp expression
 				  $$.code = $2.code;
 				  $$.result_id = $2.result_id;
 				}
-                | NOT expression comp expression {printf("relation_expr . NOT expression comp expression \n");}
-                | NOT TRUE {printf("relation_expr . NOT TRUE \n");}
-                | NOT FALSE {printf("relation_expr . NOT FALSE \n");}
-                | NOT L_PAREN bool_expr R_PAREN {printf("relation_expr . NOT L_PAREN bool_expr R_PAREN \n");}
+                | NOT expression comp expression 
+                {
+				  ostringstream oss;
+                  string x = new_temp();
+				  oss << $2.code << $4.code;
+                  oss << "!. " << x << endl;
+                  oss << $3.optr << " " << x << ", " << $2.result_id << ", " << $4	.result_id << endl;
+                  $$.code = strdup(oss.str().c_str());
+                  $$.result_id = strdup(x.c_str());
+				}
+                | NOT TRUE 
+                {
+				  ostringstream oss;
+				  oss << "!1";
+				  $$.code = "";
+				  $$.result_id = strdup(oss.str().c_str());
+				}
+                | NOT FALSE 
+                {
+				  ostringstream oss;
+				  oss << "!0";
+				  $$.code = "";
+				  $$.result_id = strdup(oss.str().c_str());	
+				}
+                | NOT L_PAREN bool_expr R_PAREN 
+                {
+				  ostringstream oss;
+				  oss << "! " << $3.result_id;
+				  $$.code = $3.code;
+				  $$.result_id = strdup(oss.str().c_str());
+				}
                 ;
 comp:           EQ
                 {
@@ -641,9 +668,27 @@ term:           var
 				  $$.code = $2.code;
 				  $$.result_id = $2.result_id;
 				}
-                | SUB var {printf("term . SUB var \n");}
-                | SUB NUMBER {printf("term . SUB NUMBER \n");}
-                | SUB L_PAREN expression R_PAREN {printf("term . SUB L_PAREN expression R_PAREN \n");}
+                | SUB var 
+                {
+					ostringstream oss;
+					oss << "- " << $2.result_id << endl;
+					$$.result_id = strdup(oss.str().c_str());
+				}
+                | SUB NUMBER 
+                {
+					ostringstream oss;
+				    $$.result_id = strdup(to_string($2).c_str());
+					oss << "- " << $$.result_id << endl;
+					$$.result_id = strdup(oss.str().c_str());
+					$$.code = "";
+				}
+                | SUB L_PAREN expression R_PAREN 
+                {
+					$$.code = $3.code;
+					ostringstream oss;
+					oss << "- " << $3.result_id << endl;
+					$$.result_id = strdup(oss.str().c_str());
+				}
                 | ident L_PAREN termInnerOne R_PAREN 
 				{
 				  ostringstream oss;
@@ -656,7 +701,12 @@ term:           var
 				  $$.result_id = strdup(x.c_str());		  
 				}
                 ;
-termInnerOne:   expression COMMA termInnerOne {printf("termInnerOne . expression COMMA termInnerOne \n");}
+termInnerOne:   expression COMMA termInnerOne 
+				{
+					ostringstream oss;
+					oss << $1.code << $3.code;
+					$$.code = strdup(oss.str().c_str());
+				}
                 | expression 
 				{
 				  $$.code = $1.code;
