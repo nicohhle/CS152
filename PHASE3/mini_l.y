@@ -277,12 +277,14 @@ statement:      var ASSIGN expression
 				  string n = new_label();
 				  ostringstream oss;
 				 
-				  if ($3.label == NULL){
+				  if ($3.label == NULL || strstr($3.label, "__label__") == NULL){
 					  oss << ": " << l << endl;
 					  oss << $3.code << $6.code;
 					  oss << "?:= " << l << ", " << $6.result_id << endl;
+					  
 				  }
 				  else {
+					  cout << "check do" << $3.label << endl;
 					  oss << ": " << l << endl;
 					  oss << $3.code;
 					  oss << ": " << $3.label << endl;
@@ -636,6 +638,7 @@ termInnerOne:   expression COMMA termInnerOne {printf("termInnerOne . expression
                 ;
 var:            ident
                 { 
+                  $$.code = "";
                   $$.result_id = $1.result_id;
                 }
                 | ident L_SQUARE_BRACKET expression R_SQUARE_BRACKET

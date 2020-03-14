@@ -9,8 +9,14 @@ beginlocals
   t : array [20] of integer;
 
 endlocals
-
-beginbody	
- k := 3;
- write t[k-1];
+beginbody
+  k := 0;
+  n := 20;
+  
+  do 
+    beginloop
+       write k;
+       k := k + 1;
+    endloop
+  while k < n;
 endbody
