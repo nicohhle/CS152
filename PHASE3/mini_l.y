@@ -247,26 +247,23 @@ statement:      var ASSIGN expression
 				  ostringstream oss;
 				  
 				  if ($4.label == NULL || strstr($4.label, "__label__") == NULL){
-					  oss << ": " << n << endl;
-					  oss << $2.code;
-					  oss << "?:= " << l << ", " << $2.result_id << endl;
-					  oss << ":= " << m << endl;
 					  oss << ": " << l << endl;
+					  oss << $2.code;
+					  oss << "== " << n << ", " << $2.result_id << ", " << "0" << endl;
+					  oss << "?:= " << l << ", " << n << endl;
 					  oss << $4.code;
-					  oss << ":= " << n << endl;
+					  oss << ":= " << l << endl;
 					  oss << ": " << m << endl;
 				  }
 				  else {
-				  	  oss << ": " << n << endl;
+				  	  oss << ": " << l << endl;
 					  oss << $2.code;
-					  oss << "?:= " << l << ", " << $2.result_id << endl;
-					  oss << ":= " << m << endl;
-					  oss << ":= " << $4.label << endl;
-					  oss << ": " << l << endl;
+					  oss << "== " << n << ", " << $2.result_id << ", " << "0" << endl;
+					  oss << "?:= " << l << ", " << n << endl;
 					  oss << $4.code;
-					  oss << ":= " << n << endl;
+					  oss << ": " << $4.label << endl;	
+					  oss << ":= " << l << endl;
 					  oss << ": " << m << endl;
-					  oss << ": " << $4.label << endl;
 				  }
 				  
 
@@ -283,20 +280,14 @@ statement:      var ASSIGN expression
 				  if ($3.label == NULL){
 					  oss << ": " << l << endl;
 					  oss << $3.code << $6.code;
-					  oss << "?:= " << n << ", " << $6.result_id << endl;
-					  oss << ":= " << m <<endl;
-					  oss << ": " << n << endl;
-					  oss << ": " << m << endl; 
+					  oss << "?:= " << l << ", " << $6.result_id << endl;
 				  }
 				  else {
 					  oss << ": " << l << endl;
-					  oss << $3.code << $6.code;
-					  oss << "?:= " << n << ", " << $6.result_id << endl;
-					  oss << ":= " << m << endl;
-					  oss << ":= " << $3.label << endl;
-					  oss << ": " << n << endl;
+					  oss << $3.code;
 					  oss << ": " << $3.label << endl;
-					  oss << ": " << m << endl;
+					  oss << $6.code;
+					  oss << "?:= " << l << ", " << $6.result_id << endl;
 				  }
 
 				  $$.code = strdup(oss.str().c_str());
@@ -379,8 +370,9 @@ statement:      var ASSIGN expression
                 {
                   ostringstream oss;
                   string l = new_label();
+                  oss << ":= " << l << endl;
                   $$.label = strdup(l.c_str());
-                  $$.code = "";
+                  $$.code = strdup(oss.str().c_str());
                 }
                 | RETURN expression 
                 {
